@@ -569,20 +569,7 @@ Declarative,Less code,Better for microservices,Works easily with service discove
 | Load Balancing        | Needs extra config | Built-in with Spring Cloud |
 | Readability           | Lower              | Higher                     |
 
-4️⃣ Example Comparison
-RestTemplate
-String url = "http://order-service/orders/1";
-Order order = restTemplate.getForObject(url, Order.class);
-Feign Client
-@FeignClient("order-service")
-interface OrderClient {
-    @GetMapping("/orders/{id}")
-    Order getOrder(@PathVariable int id);
-}
 
-Usage:
-
-orderClient.getOrder(1);
 5️⃣ When to Use
 
 Use RestTemplate when:

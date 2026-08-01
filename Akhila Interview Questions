@@ -545,7 +545,7 @@ Imperative style,More boilerplate code,Manually manage endpoints,Older approach 
 
 2️⃣ Feign Client
 Feign Client is a declarative REST client.
-You just define an interface, and Spring automatically creates the implementation.
+You just define an interface and annotate it with @FeignClient, Spring automatically creates the implementation at runtime, so we don't have to write the http communication code manually.
 
 Example
 @FeignClient(name = "user-service")

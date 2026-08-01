@@ -191,7 +191,8 @@ Interview Answer
 
 When do we get NoClassDefFoundError?
 
-We get NoClassDefFoundError when a class was present during compilation but is unavailable at runtime. Common reasons include missing JAR files, deleted .class files, incorrect classpath configuration, or deployment issues. It is an Error and occurs during class loading by the JVM.
+We get NoClassDefFoundError when a class was present during compilation but is unavailable at runtime. Common reasons include missing JAR files, deleted .class files, 
+incorrect classpath configuration, or deployment issues. It is an Error and occurs during class loading by the JVM.
 
 Easy Memory Trick
 Class available during compile time ✅
@@ -200,20 +201,10 @@ Class missing during runtime ❌
 => NoClassDefFoundError
 
 
-The onboarding process starts in the React application, where the user fills out the OCA form and submits it. 
-The frontend sends a POST request to our Customer Onboarding Spring Boot service. The controller validates the request, 
-and we perform additional business validations, such as checking for mandatory fields and duplicate customer records. 
-The service layer processes the request and persists the data to the database using Spring Data JPA. Depending on the business flow,
-we also invoke other internal microservices via REST APIs to retrieve or update related information. If any downstream service is unavailable,
-we handle the exception appropriately, log the error, and return a meaningful response. Once the onboarding is approved, the prospect customer is converted into a payer customer
-
-
 1. How does an ArrayList grow internally?
 
 "ArrayList stores elements in an internal array. When the array becomes full, it creates a new, larger array (typically about 1.5 times the current capacity in modern JDKs), 
 copies the existing elements into it, and then adds the new element."
-
-This resizing is why adding an element is usually fast, but occasionally more expensive when a resize happens.
 
 2. Why is insertion at the beginning O(n)?
 
@@ -224,7 +215,8 @@ If you insert X at index 0, it becomes:
 [X, A, B, C, D]
 Every existing element has to shift one position to the right, so the work grows with the number of elements: O(n).
 
-Adding at the end is usually O(1) because you simply place the new element in the next available slot. Only when the internal array is full does resizing make that single insertion more expensive.
+Adding at the end is usually O(1) because you simply place the new element in the next available slot. Only when the internal array is full does
+resizing make that single insertion more expensive.
 
 ===============================
 
@@ -237,35 +229,23 @@ Finally, the embedded Tomcat server starts, and the application begins listening
 
 ======================================
 
-When the Spring application starts, it scans the classes and creates beans for classes annotated with @Component, @Service, @Repository, and @Controller.
-During dependency injection, Spring sees the @Autowired annotation on EmployeeService. It looks into the ApplicationContext for a bean of type EmployeeService.
-If exactly one matching bean exists, Spring injects it. If multiple beans of the same type exist, Spring throws NoUniqueBeanDefinitionException unless we use @Qualifier 
-or mark one bean with @Primary."
-================================================
-
 Do you think retrying 100 times is a good idea?
 
 "No. If the service has a persistent failure, repeated retries only increase load and delay the response. That's why retries should be limited, 
-and they should work together with circuit breakers and fallback mechanisms."
+have to use circuit breakers and fallback mechanisms."
 
-1. Will retries happen forever?
-No. In production, retries are configured with a maximum number of attempts. For example, retry up to 3 times with a delay between attempts. 
+retries are configured with a maximum number of attempts. For example, retry up to 3 times with a delay between attempts. 
 If all retries fail, the request fails and the fallback method is executed."
 
 2. Why are excessive retries dangerous?
-
 It increases load on an already unhealthy service.
 It can consume application threads.
 It increases response time for users.
-It may create a retry storm if many clients retry simultaneously.
+
 3. Production configuration
 In production, we'd configure a small number of retries, such as 2 or 3, with a backoff delay. If the service continues to fail,
 the circuit breaker opens and fallback logic is used instead of retrying indefinitely."
 ======================================================
-
-Interview Answer
-
-"Our application follows a microservices architecture using Spring Boot. When a user submits the Online Credit Application form, the request first passes through Spring Security filters where the JWT token is validated. If the token is valid, the request reaches the controller layer. The controller delegates the request to the service layer, where business validations and business logic are performed. The service interacts with the repository layer to perform database operations. The response then travels back through the service and controller layers. If any exception occurs, it is handled globally using @RestControllerAdvice and @ExceptionHandler, and a meaningful HTTP status code and error message are returned to the client."
 
 Question 2: equals() and hashCode()
 What happens if they are not overridden?
@@ -275,10 +255,7 @@ set.add(new Employee(1, "A"));
 set.add(new Employee(1, "A"));
 
 Output:
-
 2
-Why?
-
 Because the default implementations from Object compare object identity (memory addresses), so two different Employee instances 
 are considered different even if their data is the same.
 
@@ -287,77 +264,8 @@ Calls hashCode() to find the bucket.
 If there's a possible match, calls equals() to verify equality.
 
 Rule to remember:
-
 If you override equals(), you must also override hashCode() so that equal objects produce the same hash code.
-
-Question 3: Concurrency
-Race Condition
-
-Occurs when multiple threads update shared data simultaneously, producing inconsistent results.
-
-When to use each
-
-synchronized
-
-Simple locking within a single JVM.
-Good for protecting a critical section.
-
-ReentrantLock
-
-More flexible than synchronized.
-Supports tryLock(), timeouts, interruptible locking, and fairness.
-
-AtomicInteger
-
-Best for simple atomic counters.
-Avoids explicit locking and performs well under contention.
-Multiple Spring Boot instances
-
-synchronized is not sufficient across multiple application instances because each JVM has its own lock. For distributed systems, 
-consider database locking, optimistic/pessimistic locking, or distributed locking (such as Redis-based locking) depending on
-the use case.
-
-Question 4: Redis Cache
-Cache Flow
-Client
-   │
-   ▼
-Application
-   │
-   ├── Check Redis
-   │      │
-   │      ├── Cache Hit → Return data
-   │      └── Cache Miss
-   │
-   ▼
-Database
-   │
-   ▼
-Store result in Redis
-   │
-   ▼
-Return response
-Cache consistency
-
-When the database is updated, the cache must also be updated or invalidated.
-
-Useful Spring caching annotations:
-
-@Cacheable → Read from cache or populate it if absent.
-@CachePut → Update the cache with the latest value.
-@CacheEvict → Remove stale cache entries.
-Question 5: Biggest Contribution
-
-Your answer had a good topic, but it needs more structure.
-
-Here's how you can present it:
-
-"One of my major contributions was implementing the automatic creation of a Bank Entry Form after an OCR form was submitted.
-Earlier, this process required additional manual steps. I analyzed the existing workflow, identified where the Bank Entry Form 
-should be generated, implemented the backend logic, integrated it into the submission flow, and thoroughly tested the feature.
-After deployment, the process became automatic, reducing manual effort and improving the overall onboarding experience.
-This task strengthened my understanding of the application's workflow and the importance of designing reliable end-to-end business
-processes."
+================================================
 Does @Transactional roll back for every exception?
 By default, Spring rolls back for unchecked exceptions (RuntimeException and Error).
 It does not automatically roll back for checked exceptions unless you configure it, for example:

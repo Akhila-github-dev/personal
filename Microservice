@@ -92,6 +92,8 @@ In Spring Boot, we typically implement this using Resilience4j. For example, we 
 handle failures gracefully. This helps maintain user experience even when a downstream service is down.
 
 This pattern is especially useful in distributed systems where services depend on each other, and it helps isolate failures and recover faster
+
+if one microservice is unavailabel and no resilience mechanism is implemented requests depending on that service may fail or timeout, which can impact the user experience
 =======================================================================================================
 
 @CircuitBreaker(name = "myService", fallbackMethod = "fallbackMethod")

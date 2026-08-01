@@ -43,8 +43,7 @@ Both update to 900
 =====================================
 What are immutable objects?
 Immutable objects are objects whose state cannot be changed after they are created. Once an object is initialized, its data remains constant throughout its lifetime.
-For example, String, wrapper classes like Integer, and classes from the Java Time API like LocalDateTime are immutable.
-
+For example, String, wrapper classes like Integer, LocalDateTime.
 Any modification to an immutable object results in the creation of a new object instead of changing the existing one. This makes immutable objects inherently thread-safe.”
 
 🔍 Simple Example
@@ -72,24 +71,18 @@ it using minimal locking instead of locking the entire map.”
 “ConcurrentHashMap achieves thread safety using a combination of lock-free reads and fine-grained locking for writes.
 Read operations do not require locking, while write operations lock only a small portion of the map instead of the entire map. 
 ==========================================
-
 Difference between fail-fast and fail-safe iterators?
 Fail-fast iterators throw a ConcurrentModificationException if the collection is structurally modified during iteration. 
 This is because they directly work on the original collection and detect changes using an internal modification count.
 
-Fail-safe iterators, on the other hand, do not throw exceptions because they iterate over a copy or snapshot of the collection, so concurrent modifications do not affect them.”
+Fail-safe iterators, on the other hand, do not throw exceptions because they iterate over a copy of the collection, so concurrent modifications do not affect them.”
 =============================================
-🌐 2. Spring Boot + Microservices (VERY IMPORTANT)
-Common Questions:
 What is Spring Boot and why use it?
 ===============================
 What is Spring Boot Auto Configuration?
-Auto-configuration works by detecting dependencies on the classpath and automatically configuring required beans using conditional logic.
-“Spring Boot auto-configuration automatically configures beans based on the dependencies present in the classpath. It is enabled using @SpringBootApplication,
+Spring Boot auto-configuration automatically configures beans based on the dependencies present in the classpath. It is enabled using @SpringBootApplication,
 which includes @EnableAutoConfiguration.
-
 Internally, Spring Boot checks the classpath and uses conditional annotations like @ConditionalOnClass and @ConditionalOnMissingBean to decide which beans to create.
-
 For example, if we include the Spring Web dependency, Spring Boot automatically configures components like DispatcherServlet without manual setup.”
 Examples include embedded Tomcat, DataSource, JPA, Jackson for JSON, Spring Security, and Actuator endpoints
 Apart from DispatcherServlet, Spring Boot auto-configures many components like embedded Tomcat server, DataSource for database connections, JPA and Hibernate setup, 
@@ -99,33 +92,12 @@ How does dependency injection work?
 What is the difference between:
 @Component, @Service, @Repository
 
-Microservices:
-What is Microservices Architecture?
-Monolith vs Microservices?
-How do services communicate?
-REST / Feign Client / Kafka
-What is Service Discovery?
-What is API Gateway?
-
-👉 Scenario-based:
-
-How do you handle failures between services?
-How do you implement retry logic?
 How do you ensure data consistency?
-🔐 3. API Security (VERY LIKELY)
-
-Your JD explicitly mentions OAuth → Expect deep questions.
-
-Questions:
-What is OAuth 2.0?
 Difference between:
 Authentication vs Authorization
 What is JWT Token?
 How does token validation work?
-
-👉 Real-world question:
-
-“How do you secure REST APIs in Spring Boot?”
+How do you secure REST APIs in Spring Boot?”
 
 Expected Answer:
 Spring Security
@@ -133,132 +105,34 @@ JWT / OAuth2
 Role-based access
 HTTPS
 API Gateway security
-🔗 4. REST APIs
-Questions:
+
 What is REST?
 What are HTTP methods?
 Difference between:
 PUT vs POST
 PATCH vs PUT
 What is idempotency?
-
-👉 Practical:
-
 How do you design a scalable API?
 How do you handle error responses?
-🗄️ 5. Database (PL/SQL + Data Processing)
-Questions:
 Difference between:
 JOIN vs UNION
 What is indexing?
 What are transactions?
 ACID properties?
-
-👉 Scenario:
-
 How do you optimize slow queries?
-How do you handle large data processing?
-⚙️ 6. Tools (Git, Maven, JFrog, UDeploy)
+ Tools (Git, Maven, JFrog, UDeploy)
 Questions:
 What is Maven lifecycle?
 What is artifact repository (JFrog)?
 Explain Git branching strategy
 What is CI/CD pipeline?
-🐧 7. Linux / Shell Scripting
-Questions:
-Basic Linux commands:
-grep, awk, sed, find
-How do you check logs?
-Write a simple shell script
-
-👉 Example:
-
-Script to monitor CPU or disk usage
-📊 8. System Design (IMPORTANT for 5+ years)
-Questions:
 Design a URL shortener
 Design a payment system
 Design a login/auth system
 
-👉 Expect:
-
-API design
-DB schema
-Scaling
-Caching
-Load balancing
-💡 9. Scenario-Based Questions (Most Important)
-
-These decide selection.
-
-Examples:
 “Your microservice is slow. What will you do?”
 “API is failing in production. How do you debug?”
 “How do you handle high traffic?”
-
-👉 Answer approach:
-
-Logs
-Monitoring
-Scaling
-DB optimization
-Caching
-
-
-Basics → Must answer instantly
-What is OOP? Explain all 4 principles with examples
-What is JVM, JRE, JDK?
-How memory works in Java? (Heap vs Stack)
-What is Garbage Collection?
-Collections (VERY IMPORTANT)
-HashMap vs Hashtable vs ConcurrentHashMap
-How HashMap works internally?
-What is hashing & collision?
-equals() vs hashCode()
-Multithreading
-What is thread lifecycle?
-Runnable vs Callable
-synchronized vs Lock
-volatile keyword
-What is deadlock? How to prevent?
-Java 8+
-Stream API (real examples)
-Optional class
-Functional interfaces
-Lambda expressions
-🌐 2. Spring Boot (VERY HIGH PRIORITY)
-Core
-What is Spring Boot?
-Why not plain Spring?
-What is IoC and DI?
-Annotations
-@RestController vs @Controller
-@Autowired vs constructor injection
-@Bean vs @Component
-Internals
-How Spring Boot starts?
-What is DispatcherServlet?
-What happens when API request comes?
-
-👉 This question is VERY common:
-
-“Explain end-to-end flow of a request in Spring Boot”
-
-🧩 3. Microservices (CRITICAL)
-Fundamentals
-What is Microservices Architecture?
-Advantages & disadvantages
-Real-world
-How services communicate?
-What is API Gateway?
-What is Service Discovery?
-Advanced (They love this)
-Circuit breaker
-Retry mechanism
-Distributed tracing
-Centralized logging
-
-👉 Scenario:
 
 “Service A is slow, what will you do?”
 “One service is down, how system behaves?”
@@ -268,120 +142,13 @@ What is JWT?
 How JWT works internally?
 Stateless authentication?
 
-👉 VERY COMMON:
-
-“How did you secure your APIs?”
-
-Expected:
-
-Spring Security
-Filters
-Token validation
-Role-based access
-🔗 5. REST APIs
-What is REST?
-What are HTTP methods?
-PUT vs POST vs PATCH
-Idempotency
-
-👉 Practical:
-
-How do you version APIs?
-How do you handle errors?
-🗄️ 6. Database (IMPORTANT)
-SQL vs NoSQL
-Joins (inner, left, right)
-Indexing
-Transactions & ACID
-
-👉 Scenario:
-
-“Query is slow. What will you do?”
-“Handling large data?”
-⚙️ 7. Tools
-Git
-What is rebase vs merge?
-Conflict resolution?
-Maven
-Lifecycle phases
-CI/CD
-What is pipeline?
-Tools used?
-🐧 8. Linux
-Basic commands
-Log analysis
-Disk/memory check
-📊 9. System Design (FOR 4+ YEARS)
-
-You WILL get at least 1:
-
-Design URL shortener
-Design payment system
-Design login system
-
-👉 Focus on:
-
-API design
-DB design
-Scaling
-Caching
-💣 10. REAL-TIME SCENARIO QUESTIONS (MOST IMPORTANT)
-
-These decide selection.
-
-API latency is high — what steps?
-Production issue — how debug?
-Memory leak — how identify?
-High traffic — how scale?
-DB connection issue — what do you do?
-🎯 11. YOUR PROJECT (MAKE OR BREAK)
-
-They will go DEEP here:
-
-Explain your architecture
-How many services?
-How they communicate?
-Your exact role?
-Biggest challenge?
-What did YOU implement?
-
-👉 If you fail here → rejection.
-
-🧠 How to Actually Crack This
-
-Instead of memorizing:
-
-Step 1: Master these 5 areas deeply
-Core Java (collections + threads)
-Spring Boot flow
-Microservices concepts
-Security (JWT/OAuth)
-Your project
-Step 2: Practice speaking (VERY IMPORTANT)
-
-You should be able to explain:
-
-Any concept in 1–2 minutes
-Any scenario in structured way
-Step 3: Use THIS Answer Structure
-
-Whenever stuck:
-
-1. Definition
-2. How it works
-3. Example
-4. Real-time usage
-
-
 What happens if hashCode is same but equals is false?”
 Same hashCode and different equals means collision. HashMap stores both objects in the same bucket and uses equals() to identify them separately.”
 If two objects have the same hashCode but equals() returns false, they will be stored in the same bucket but as different entries.
-
 HashMap uses hashCode() to find the bucket and equals() to differentiate keys within the bucket.
-
 So, both objects will coexist without any issue.
-“Why 8 as threshold?”
-“Threshold 8 is used in Java 8 HashMap to convert linked list into Red-Black Tree for better performance during heavy collisions.”
+
+Threshold 8 is used in Java 8 HashMap to convert linked list into Red-Black Tree for better performance during heavy collisions.”
 
 ============================================
 To make a shared counter thread-safe, we can use multiple approaches:
@@ -392,14 +159,7 @@ Atomic classes (AtomicInteger) → best for counters using CAS (non-blocking)
 Volatile (only for visibility, not atomicity)
 
 For a counter, I prefer AtomicInteger because it provides better performance.
-=========================================
-In Spring Boot, global exception handling is done using @ControllerAdvice.
 
-We define methods annotated with @ExceptionHandler to handle specific exceptions.
-
-When an exception occurs in any controller, it is intercepted by the global handler and a proper response is returned.
-
-This helps in centralizing error handling and maintaining consistent API responses.
 ========================================
 If Service B is intermittently slow:
 
@@ -409,25 +169,10 @@ Apply circuit breaker to prevent cascading failures
 Provide fallback response if needed
 
 This ensures system resilience and better user experience.
-====================
-Index improves query performance
-
-Clustered Index:
-
-Physically orders data in table
-Only one per table
-
-Non-clustered Index:
-
-Separate structure with pointers to data
-Multiple allowed
-
-👉 Use clustered for frequently sorted data, non-clustered for search columns
-========================================
+==========================================================
 Since JWT is stateless, we cannot directly invalidate it.
 
 Solutions:
-
 Maintain a blacklist (token revocation list)
 Use short expiry time
 Use refresh tokens
@@ -435,35 +180,18 @@ Use refresh tokens
 On logout, we add token to blacklist or rely on expiration.
 ===================================================
 If an exception is not handled in Spring Boot, it is handled by the default exception resolver, and a generic error response (like HTTP 500) is returned.
-
 To customize this, we use @ControllerAdvice with @ExceptionHandler.
 ============================
 “I’m not fully sure, but based on my understanding
 
 =========================================================================
 System.gc() is only a request to the JVM to perform garbage collection. The JVM may choose to ignore it. We cannot force garbage collection."
-
-2. finalize()
-
+finalize()
 finalize() does not remove objects.
 It was a callback method that the JVM could invoke before reclaiming an object.
 It has been deprecated for years because it was unreliable and caused performance issues.
 
 3. When is an object eligible for GC?
-
-"Employee emp; is an unreferenced object."
-
-Actually:
-
-Employee emp;
-
-There is no object at all.
-
-No object has been created.
-
-Garbage collection only applies to objects that already exist in the heap.
-
-A better example is:
 
 Employee emp = new Employee();
 emp = null;
@@ -486,9 +214,6 @@ Now the object has no reachable references, so it becomes eligible for GC.
 
 ===================================================================
 What is transaction propagation? What is the default propagation in Spring? Explain REQUIRED and REQUIRES_NEW.
-
-Interview Answer
-
 Transaction propagation defines how a transactional method behaves when it is called by another transactional method.
 
 The default propagation in Spring is Propagation.REQUIRED.
@@ -502,42 +227,9 @@ Easy Remember:
 
 REQUIRED = Join or Create
 REQUIRES_NEW = Always New
-Question 2
 
-How do you prevent duplicate customer records in a Spring Boot application?
-
-Interview Answer
-
-I would handle it at both the application layer and the database layer.
-
-Validate duplicate business data in the service layer.
-Add a UNIQUE constraint in the database on business keys such as email or customer ID.
-If two requests arrive simultaneously, one insert succeeds and the other fails with a unique constraint violation.
-Catch the exception and return a meaningful error message to the client.
-Question 3
-
-Write a query to find the second highest salary.
-
-Interview Answer
-SELECT MAX(salary)
-FROM employee
-WHERE salary <
-(
-    SELECT MAX(salary)
-    FROM employee
-);
-
-Alternative:
-
-SELECT salary
-FROM employee
-ORDER BY salary DESC
-LIMIT 1 OFFSET 1;
-Question 4
 
 How do you optimize a query when the table contains 50 million records?
-
-Interview Answer
 
 If a query becomes slow, my approach is:
 
@@ -550,11 +242,7 @@ Review database logs and execution time.
 Question 5
 
 How do you solve race conditions in a Spring Boot application?
-
-Interview Answer
-
 A race condition occurs when multiple threads access and modify shared data simultaneously, leading to inconsistent results.
-
 Possible solutions include:
 
 synchronized
@@ -566,23 +254,8 @@ Atoms
 @EnableAsync is used for asynchronous execution and does not solve race conditions.
 
 ====================================================================================
-Explain == and equals().
-Ideal Answer
 
-== compares primitive values directly. For objects, it compares references (whether both references point to the same object).
-
-equals() compares the contents of objects. By default, it behaves like ==, but classes such as String override it to compare values.
-
-If we don't override equals() and hashCode() in a custom class like Employee, collections such as HashSet and keys in HashMap won't correctly identify logically equal objects. This can lead to duplicate entries or failed lookups.
-
-Easy Remember
-
-== → Reference
-equals() → Content
-Question 2
 What is NoUniqueBeanDefinitionException?
-Ideal Answer
-
 This exception occurs when Spring finds multiple beans of the same type and doesn't know which one to inject.
 
 Example:
@@ -606,10 +279,8 @@ We can resolve it using:
 Difference
 @Qualifier → Choose a specific bean at the injection point.
 @Primary → Make one bean the default choice.
-Question 3
-Customer Service succeeds, Credit Service fails. How do you maintain consistency?
-Ideal Answer
 
+Customer Service succeeds, Credit Service fails. How do you maintain consistency?
 In a microservices architecture, each service has its own database, so a normal database transaction cannot span multiple services.
 
 One common solution is the Saga Pattern.
@@ -623,23 +294,15 @@ Example:
 Customer Service saves customer.
 Credit Service fails.
 Compensation removes or marks the customer record appropriately.
-Question 4
+
 @ControllerAdvice vs @RestControllerAdvice
-Ideal Answer
-
 Both are used for global exception handling.
-
 @ControllerAdvice is mainly used in MVC applications. It returns views unless methods are annotated with @ResponseBody.
-
 @RestControllerAdvice combines @ControllerAdvice and @ResponseBody, making it ideal for REST APIs because it returns JSON responses automatically.
 
 HTTP Status
-
 Unexpected NullPointerException → 500 Internal Server Error
 
-Question 5
-LAZY vs EAGER
-Ideal Answer
 
 FetchType.LAZY loads related entities only when they are accessed.
 
@@ -649,29 +312,6 @@ In production, I prefer LAZY because it avoids unnecessary database queries and 
 
 I use EAGER only when the related data is always required.
 
-Question 6
-Redis Cache
-Ideal Answer
-
-Redis is an in-memory cache used to store frequently accessed data.
-
-Advantages:
-
-Faster than database access
-Reduces database load
-Improves response time
-
-Cache annotations:
-
-@Cacheable → Read from cache if present.
-@CachePut → Update both database and cache.
-@CacheEvict → Remove stale data from the cache.
-
-When customer data changes, I would update or evict the corresponding cache entry to avoid returning stale data.
-
-Small correction: You mentioned "Cache Delete." In Spring, the annotation is @CacheEvict.
-
-Question 7
 JWT Authentication Flow
 Ideal Answer
 User logs in with username and password.
@@ -681,13 +321,10 @@ The JWT contains a header, payload, and signature.
 The client stores the token and sends it in the Authorization: Bearer <token> header.
 For every request, a JWT filter validates the signature and expiration.
 If the token is valid, the request proceeds. Otherwise, the server returns 401 Unauthorized.
-Question 8
+
+==========================================
 API response time is inconsistent.
-Ideal Answer
-
-I would investigate step by step:
-
-Check application logs.
+check application logs.
 Measure response time for each layer.
 Check database execution time and query plans.
 Verify external API response times.

@@ -870,6 +870,103 @@ These two concepts contradict each other.
 
 =================================================================
 y we can override static method then y to keep static method in abstract class
+abstract class Employee {
+
+    static String companyName() {
+        return "HighRadius";
+    }
+
+    abstract void calculateSalary();
+}
+
+Now,
+
+class Developer extends Employee {
+
+    @Override
+    void calculateSalary() {
+        System.out.println("Developer Salary");
+    }
+}
+
+Usage:
+
+public class Test {
+
+    public static void main(String[] args) {
+
+        System.out.println(Employee.companyName());
+
+        Developer d = new Developer();
+        d.calculateSalary();
+    }
+}
+
+Output:
+
+HighRadius
+Developer Salary
+Why is companyName() static?
+Because every employee belongs to the same company.
+
+It doesn't depend on an object.
+
+Instead of creating a Developer object just to get the company name,
+
+Developer d = new Developer();
+System.out.println(d.companyName());   // Not recommended
+
+we simply do
+
+System.out.println(Employee.companyName());
+
+No object needed.
+
+Then why can't we override it?
+
+Suppose Java allowed overriding.
+
+abstract class Employee {
+
+    static void display() {
+        System.out.println("Employee");
+    }
+}
+
+class Developer extends Employee {
+
+    static void display() {
+        System.out.println("Developer");
+    }
+}
+
+Now imagine
+
+Employee e = new Developer();
+e.display();
+
+What should be printed?
+
+Should it print
+
+Employee
+
+or
+
+Developer
+
+Static methods belong to the class, not the object.
+
+The compiler sees
+
+Employee e
+
+So it calls
+
+Employee.display();
+
+There is no runtime polymorphism.
+========================================================================
 shown program string equals comparsion 
 cocurrent modifcation program 
 y iterator remove method don't throw error

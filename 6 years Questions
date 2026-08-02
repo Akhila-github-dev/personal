@@ -309,9 +309,168 @@ Frequent reads/writes
 ==============================================================
    * Fail-fast vs. fail-safe iterators [02:31]
    * Fork-join pool in thread pools [02:31]
+divide-and-conquer algorithms. It recursively splits large tasks into smaller subtasks using the fork operation, executes them in parallel, and combines the results using join. 
+Its key feature is the work-stealing algorithm, where idle worker threads steal tasks from busy threads to improve CPU utilization. 
+It's commonly used by parallel streams and many CompletableFuture operations.
+==================================================
    * Thread pool used by parallel streams [02:38]
+Yes. Parallel Streams use the ForkJoinPool.commonPool() by default.
+
+Example
+List<Integer> numbers = List.of(1, 2, 3, 4, 5);
+
+numbers.parallelStream()
+       .forEach(n -> System.out.println(
+           Thread.currentThread().getName() + " : " + n
+       ));
+
+Possible output:
+
+ForkJoinPool.commonPool-worker-1 : 2
+ForkJoinPool.commonPool-worker-3 : 5
+ForkJoinPool.commonPool-worker-2 : 1
+main : 4
+ForkJoinPool.commonPool-worker-1 : 3
+
+Notice the thread names like:
+
+ForkJoinPool.commonPool-worker-1
+ForkJoinPool.commonPool-worker-2
+
+This shows that parallelStream() is using the common ForkJoinPool.
+
+Why does it use ForkJoinPool?
+
+A parallel stream:
+
+Splits the collection into smaller chunks (fork).
+Processes those chunks in parallel using worker threads.
+Combines the results (join).
+
+This divide-and-conquer approach is exactly what ForkJoinPool is designed for.
+
+Interview Question
+
+Q: Which thread pool is used by parallelStream()?
+By default, parallelStream() uses the ForkJoinPool.commonPool(), a shared thread pool that uses a work-stealing algorithm to efficiently execute tasks in parallel.
+
+Can we use our own ForkJoinPool?
+Yes. If you don't want to use the common pool, you can submit the parallel stream to a custom ForkJoinPool:
+
+ForkJoinPool pool = new ForkJoinPool(4);
+
+pool.submit(() ->
+    list.parallelStream()
+        .forEach(System.out::println)
+).join();
+
+This limits the parallelism to 4 worker threads instead of using the common pool.
+
+===========================================================
    * In-depth questions about HashMap (internal working, hashcode calculation, value overriding, collision, time complexity) [02:43]
+HashMap stores data as key-value pairs. Internally, it uses an array of buckets, where each bucket stores one or more Node objects.
+
+When we call put(key, value), HashMap first calls hashCode() on the key to generate a hash value. It then applies an internal hashing function and calculates the bucket index.
+In Java, this is effectively done using (n - 1) & hash, where n is the table size. The default initial capacity is 16.
+
+If the bucket is empty, a new node is inserted. If another key maps to the same bucket, a collision occurs. HashMap then compares the keys using equals().
+If the keys are equal, the existing value is replaced. Otherwise, a new node is added to the bucket.
+
+Before Java 8, collisions were handled using a linked list. From Java 8 onwards, if a bucket contains more than 8 entries and the table size is at least 64,
+the linked list is converted into a red-black tree to improve lookup performance from O(n) to O(log n).
+
+When we call get(key), HashMap again computes the bucket index using hashCode(), then traverses the linked list or tree in that bucket and uses equals() 
+to locate the exact key and return its value.
+===============================================================
    * Design patterns (Singleton, Prototype, Abstract Factory, Factory, Builder) [03:04]
+Singleton ensures that only one instance of a class is created throughout the application and provides a global access point to that instance.
+To save memory.
+When only one shared object is needed.
+example
+Logger
+Configuration Manager
+By default, Spring Beans are Singleton scoped. When we annotate a class with @Service, @Component, or @Repository, Spring creates only one instance 
+of that bean and reuses it across the application.
+
+Interview Answer
+
+Singleton pattern ensures only one object of a class is created during the application's lifetime. It is useful when a single shared instance is sufficient,
+such as configuration classes or service beans. In Spring Boot, beans are singleton by default.
+
+2. Factory Pattern
+Factory Pattern creates objects without exposing the object creation logic to the client. The client only asks for an object, and the factory decides which implementation to create.
+
+Suppose you have
+
+Payment
+
+CardPayment
+
+UPIPayment
+
+NetBankingPayment
+
+Instead of writing
+
+new CardPayment();
+
+you do
+
+Payment payment = PaymentFactory.getPayment("CARD");
+
+The factory decides which object to create.
+
+Spring IOC Container itself acts like a Factory because it creates and manages beans.
+Factory Pattern encapsulates object creation logic. Instead of creating objects directly using the new keyword,
+the client requests the factory to create the required object. This improves flexibility and reduces tight coupling.
+
+3. Abstract Factory Pattern 
+Factory creates one type of object.
+Abstract Factory creates families of related objects.
+
+Abstract Factory provides an interface for creating families of related objects without specifying their concrete classes.
+It is useful when multiple related objects need to be created together.
+
+4. Prototype Pattern 
+Prototype Pattern creates new objects by cloning an existing object instead of creating a new one from scratch.
+Prototype Pattern creates new objects by cloning existing objects. It is useful when object creation is expensive or when many similar objects need to be created.
+
+5. Builder Pattern 
+Builder Pattern is used to create complex objects step by step.
+
+Example
+
+Instead of
+
+Employee e = new Employee(
+"Akhila",
+27,
+"Hyderabad",
+90000,
+true,
+...
+);
+
+Use
+
+Employee employee =
+Employee.builder()
+       .name("Akhila")
+       .age(27)
+       .city("Hyderabad")
+       .salary(90000)
+       .build();
+
+Much more readable.
+
+Lombok
+@Builder
+
+uses the Builder Pattern.
+
+Builder Pattern is used to construct complex objects step by step. It improves code readability and avoids constructors with many parameters.
+In Spring Boot projects, we commonly use Lombok's @Builder annotation to implement this pattern.
+===================================================================================
    * SQL: JPA, custom queries, native queries, procedures, triggers, functions, GROUP BY, HAVING, LIKE [03:24]
    * Abstract classes [03:45]
    * SOLID principles with examples [03:45]

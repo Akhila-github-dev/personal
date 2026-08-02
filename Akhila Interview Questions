@@ -1003,7 +1003,32 @@ TCS
 2) restcontrolleradvice implementation
 3) microservices design patterns
 4) how do you do validation for authentication 
+
+Login Request
+      ↓
+Security Filter
+      ↓
+AuthenticationManager
+      ↓
+UserDetailsService
+      ↓
+Password Validation
+      ↓
+Authentication Success
+      ↓
+JWT Token Generation
+      ↓
+Return Token
+Authentication is the process of verifying the user's identity. In our Spring Boot application, when the user logs in, the request is intercepted by Spring Security's filter chain. 
+The UsernamePasswordAuthenticationFilter extracts the username and password and passes them to the AuthenticationManager. The AuthenticationManager calls the UserDetailsService, 
+which loads the user details from the database. The entered password is compared with the stored encrypted password using a PasswordEncoder such as BCryptPasswordEncoder. 
+If the credentials are valid, a JWT token is generated and returned to the client. For subsequent requests, the client sends the JWT token in the Authorization header.
+A JWT filter validates the token, and if it is valid, the authenticated user is stored in the SecurityContextHolder.
+The request is then allowed to access the controller and other application layers.
+=============================================================================
 5) how do you implement security 
+
+=======================================================================================
 5) solid principles 
 6) get highest salary in each dept (group by and having i should use)
 SELECT dept_id, MAX(salary) AS highest_salary

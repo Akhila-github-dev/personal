@@ -748,7 +748,127 @@ filter distinct odd number in reverse order using steams
 deloitte 2nd round
 
 we have a abstract class we have one abstract method how can we implement it
+abstract class ABC {
+    abstract void a();
+}
+
+public class Test {
+
+    public static void main(String[] args) {
+
+        ABC obj = new ABC() {
+            @Override
+            void a() {
+                System.out.println("Hello");
+            }
+        };
+
+        obj.a();
+    }
+}
+
+lambda expressions work only with functional interfaces, not abstract classes.
+@FunctionalInterface
+interface ABC {
+    void a();
+}
+
+public class Test {
+    public static void main(String[] args) {
+
+        ABC obj = () -> System.out.println("Hello");
+
+        obj.a();
+    }
+}
+============================================================================
 can we override static method in abstract class
+No. Static methods cannot be overridden, whether they are in an abstract class or a normal class.
+
+Example
+abstract class Animal {
+
+    static void sound() {
+        System.out.println("Animal Sound");
+    }
+}
+
+class Dog extends Animal {
+
+    static void sound() {
+        System.out.println("Dog Sound");
+    }
+}
+
+public class Test {
+    public static void main(String[] args) {
+
+        Animal.sound();
+        Dog.sound();
+    }
+}
+Output
+Animal Sound
+Dog Sound
+
+Notice that both methods exist independently.
+
+This is method hiding, not overriding.
+
+Why isn't it overriding?
+
+Overriding is based on runtime polymorphism.
+
+For instance methods:
+
+Animal a = new Dog();
+a.sound();   // Dog's implementation
+
+The JVM decides at runtime which method to call.
+
+But static methods belong to the class, not to an object.
+
+The JVM knows exactly which method to call at compile time.
+
+So:
+
+Animal.sound();   // Calls Animal's static method
+Dog.sound();      // Calls Dog's static method
+
+No runtime decision is involved.
+
+Can an abstract class have static methods?
+
+✅ Yes.
+
+abstract class Animal {
+
+    static void display() {
+        System.out.println("Static Method");
+    }
+
+    abstract void sound();
+}
+
+This is perfectly valid.
+
+Can a static method be abstract?
+
+❌ No.
+
+This is illegal.
+
+abstract class Animal {
+
+    abstract static void sound();   // Compile-time error
+}
+Why?
+abstract means the subclass must provide an implementation.
+static methods belong to the class itself and cannot be overridden.
+
+These two concepts contradict each other.
+
+=================================================================
 y we can override static method then y to keep static method in abstract class
 shown program string equals comparsion 
 cocurrent modifcation program 

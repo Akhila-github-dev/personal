@@ -1027,7 +1027,12 @@ A JWT filter validates the token, and if it is valid, the authenticated user is 
 The request is then allowed to access the controller and other application layers.
 =============================================================================
 5) how do you implement security 
-
+we implemented security using Spring Security with JWT-based authentication. We configured Spring Security using a SecurityConfig class, where we defined public endpoints such as /login 
+and protected all other APIs. During login, the user submits their username and password. Spring Security uses the AuthenticationManager and UserDetailsService to validate the 
+credentials against the database. Passwords are stored in encrypted form using BCryptPasswordEncoder. If authentication is successful, we generate a JWT token and return it to the client.
+For every subsequent request, the client sends the JWT token in the Authorization header using the Bearer scheme. A custom JWT filter intercepts each request, validates the token 
+by checking its signature and expiration, loads the user details, and stores the authentication in the SecurityContextHolder. Once authenticated, the request proceeds to the controller.
+Authorization is then enforced based on roles or authorities configured in Spring Security.
 =======================================================================================
 5) solid principles 
 

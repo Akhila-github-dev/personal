@@ -1030,6 +1030,202 @@ The request is then allowed to access the controller and other application layer
 
 =======================================================================================
 5) solid principles 
+
+ Single Responsibility Principle (SRP)
+Definition
+
+A class should have only one responsibility or one reason to change.
+
+❌ Bad Example
+class EmployeeService {
+    
+    public void saveEmployee() {
+        // save employee
+    }
+
+    public void generateReport() {
+        // generate report
+    }
+
+    public void sendEmail() {
+        // send email
+    }
+}
+
+This class:
+
+saving employee
+generating report
+sending email
+
+Too many responsibilities.
+
+✅ Good Example
+class EmployeeService {
+    public void saveEmployee() {}
+}
+
+class ReportService {
+    public void generateReport() {}
+}
+
+class EmailService {
+    public void sendEmail() {}
+}
+Real-time Example (Tell in Interview)
+
+“In Spring Boot projects, we usually separate responsibilities into Controller, Service, and Repository layers. Controller handles requests, Service contains business logic, and Repository handles database operations. This follows Single Responsibility Principle.”
+
+🔥 Very good interview answer.
+
+O — Open Closed Principle (OCP)
+Definition
+
+Software should be:
+
+open for extension
+closed for modification
+
+Meaning:
+👉 new functionality add cheyyali
+👉 existing code ekkuva modify cheyyakudadhu
+
+Real-time Example
+
+Payment methods.
+
+❌ Bad Example
+class PaymentService {
+
+    public void pay(String type) {
+
+        if(type.equals("UPI")) {
+            // UPI payment
+        }
+        else if(type.equals("CARD")) {
+            // Card payment
+        }
+    }
+}
+
+Every new payment type ki existing code modify cheyyali.
+
+✅ Good Example
+interface Payment {
+    void pay();
+}
+
+class UpiPayment implements Payment {
+    public void pay() {}
+}
+
+class CardPayment implements Payment {
+    public void pay() {}
+}
+Interview Answer
+
+“Using interfaces and polymorphism in Java helps us follow Open Closed Principle because we can add new implementations without modifying existing business logic.”
+
+L — Liskov Substitution Principle (LSP)
+Definition
+
+Child class should be replaceable with parent class without breaking functionality.
+
+❌ Bad Example
+class Bird {
+    void fly(){}
+}
+
+class Penguin extends Bird {
+    void fly() {
+        throw new UnsupportedOperationException();
+    }
+}
+
+Penguin cannot fly.
+So inheritance wrong.
+
+Interview-friendly Explanation
+
+“Subclass should properly behave like parent class. Otherwise inheritance design becomes incorrect.”
+
+Real-time Example
+
+In Spring Boot:
+
+multiple implementations of same interface
+service implementations interchangeable
+I — Interface Segregation Principle (ISP)
+Definition
+
+Client should not depend on methods it does not use.
+
+❌ Bad Example
+interface Worker {
+    void work();
+    void eat();
+}
+
+Robot doesn’t eat.
+
+✅ Good Example
+interface Workable {
+    void work();
+}
+
+interface Eatable {
+    void eat();
+}
+Real-time Example
+
+“Instead of creating one large interface with many unrelated methods, we create smaller specific interfaces.”
+
+D — Dependency Inversion Principle (DIP)
+Definition
+
+High-level modules should not depend on low-level modules directly.
+Both should depend on abstractions.
+
+❌ Bad Example
+class OrderService {
+    MySQLDatabase db = new MySQLDatabase();
+}
+
+Tightly coupled.
+
+✅ Good Example
+interface Database {
+    void connect();
+}
+
+class MySQLDatabase implements Database {
+    public void connect(){}
+}
+
+class OrderService {
+
+    Database db;
+
+    OrderService(Database db){
+        this.db = db;
+    }
+}
+Real-time Spring Boot Example
+
+🔥 MOST IMPORTANT ANSWER
+
+“Spring Boot Dependency Injection using @Autowired is the best example of Dependency Inversion Principle because service classes depend on interfaces/abstractions instead of concrete implementations.”
+
+🎯 Short Interview Summary
+Principle	Meaning
+SRP	One class → one responsibility
+OCP	Extend behavior without modifying code
+LSP	Child should properly replace parent
+ISP	Small specific interfaces
+DIP	Depend on abstraction, not implementation
+
+
+===========================================================================
 6) get highest salary in each dept (group by and having i should use)
 SELECT dept_id, MAX(salary) AS highest_salary
 FROM employees

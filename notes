@@ -270,3 +270,80 @@ Does @Transactional roll back for every exception?
 By default, Spring rolls back for unchecked exceptions (RuntimeException and Error).
 It does not automatically roll back for checked exceptions unless you configure it, for example:
 @Transactional(rollbackFor = Exception.class)
+
+
+===============================================
+ Coordinating with stakeholders to resolve production issues
+
+====================================================
+The percentage is an approximate improvement observed during the refactoring activity based on reduced duplicate code, simplified workflows, and easier maintenance efforts 
+during subsequent changes.
+
+removed duplicate methods
+separated business logic
+improved service structure
+reduced hardcoded logic
+moved reusable logic to utility/service layer
+We did not use any dedicated code complexity measurement tool. The improvement was observed practically during enhancement and maintenance activities after refactoring.
+======================================
+Atomicity
+
+👉 “Either everything happens or nothing happens.”
+
+If one step fails, entire transaction will rollback.
+
+✅ Example
+
+Suppose transferring money:
+
+Deduct ₹1000 from Account A
+Add ₹1000 to Account B
+
+If second step fails,
+👉 first step should also rollback.
+
+Otherwise money inconsistency happens
+Consistency
+
+👉 Database should always remain in a valid state.
+
+Before and after transaction:
+
+constraints
+rules
+relationships
+
+must remain valid.
+
+✅ Example
+
+Bank balance should never become negative if rule says minimum balance required.
+
+3️⃣ Isolation
+
+👉 Multiple transactions should not interfere with each other.
+Even if many users update simultaneously,
+each transaction behaves independently.
+
+✅ Example
+Two users booking same seat simultaneously should not both get same seat.
+
+4️⃣ Durability
+
+👉 Once transaction is committed,
+data is permanently saved.
+
+Even if:
+
+server crashes
+power failure happens
+
+data should not be lost.
+ACID properties ensure reliable database transactions.
+Atomicity means all operations complete or rollback together.
+Consistency maintains valid database state.
+Isolation prevents concurrent transaction conflicts.
+Durability ensures committed data is permanently stored
+===================
+ Clustered index stores data physically in sorted order and only one clustered index can exist per table.
+Non-clustered index creates a separate index structure containing pointers to actual table data, and multiple non-clustered indexes can exist

@@ -1079,7 +1079,8 @@ class EmailService {
 }
 Real-time Example (Tell in Interview)
 
-“In Spring Boot projects, we usually separate responsibilities into Controller, Service, and Repository layers. Controller handles requests, Service contains business logic, and Repository handles database operations. This follows Single Responsibility Principle.”
+“In Spring Boot projects, we usually separate responsibilities into Controller, Service, and Repository layers. Controller handles requests, Service contains
+business logic, and Repository handles database operations. This follows Single Responsibility Principle.”
 
 🔥 Very good interview answer.
 

@@ -546,9 +546,346 @@ public void executeAsyncTask() {
 13. How can we create threads in java other than runnable/Thread class ?
 1. callable
 Callable is similar to Runnable, but it can return a result and throw exceptions.Future is used to retrieve the result of an asynchronous computation.
-
 2. ExecutorService 
 3. CompletableFuture
+
+Earlier, Java provided Thread and Runnable for concurrency. Nowadays, we usually use ExecutorService, which manages a thread pool and reuses threads instead of
+creating a new thread for every task. We submit Runnable or Callable tasks to it. Runnable doesn't return a result, while Callable can return a value and throw 
+checked exceptions. When a Callable is submitted, it returns a Future, which can be used to retrieve the result using get(), although get() blocks until the task 
+completes. Java 8 introduced CompletableFuture, which allows asynchronous programming without blocking. It supports chaining operations with methods like thenApply(),
+thenAccept(), and thenCompose(), making it ideal for calling multiple independent services in parallel, such as in microservices.
+
+| ExecutorService            | CompletableFuture                                                         |
+| -------------------------- | ------------------------------------------------------------------------- |
+| Manages thread pools       | Builds asynchronous workflows                                             |
+| Executes Runnable/Callable | Executes async tasks and chains operations                                |
+| Uses Future                | Uses CompletableFuture                                                    |
+| `Future.get()` blocks      | `thenApply()`, `thenAccept()`, `thenCompose()` are non-blocking callbacks |
+| Good for background tasks  | Good for async APIs and microservices                                     |
+
+
+We usually don't create threads directly. We submit tasks to thread management frameworks like ExecutorService, Callable, and CompletableFuture. 
+These internally use threads from a thread pool.
+
+The interviewer is checking whether you know modern Java concurrency.
+
+1. Thread Class (Traditional)
+class MyThread extends Thread {
+    @Override
+    public void run() {
+        System.out.println("Running...");
+    }
+}
+
+new MyThread().start();
+Creates a new thread.
+Cannot return a value.
+Not preferred nowadays.
+2. Runnable (Traditional)
+Runnable task = () -> {
+    System.out.println("Running...");
+};
+
+Thread t = new Thread(task);
+t.start();
+Better than extending Thread because Java supports single inheritance.
+Cannot return a result.
+Cannot throw checked exceptions.
+3. Callable (Modern)
+What is Callable?
+
+Callable is just like Runnable but with two extra capabilities.
+
+Returns a value.
+Can throw checked exceptions.
+
+Instead of
+
+void run()
+
+Callable has
+
+V call() throws Exception
+
+Example
+
+Callable<Integer> task = () -> {
+    return 10 + 20;
+};
+
+Notice
+
+return 30;
+
+Runnable cannot do this.
+
+But can we directly execute Callable?
+
+No.
+
+You cannot do
+
+new Thread(callable);
+
+Because
+
+Thread accepts only Runnable.
+
+So we need
+
+ExecutorService
+
+4. ExecutorService
+
+This is one of the most asked interview topics.
+
+What is ExecutorService?
+
+Think like this.
+
+Suppose your company receives
+
+1000 requests.
+
+If every request creates a new Thread
+
+Request1 -> Thread1
+Request2 -> Thread2
+Request3 -> Thread3
+...
+Request1000 -> Thread1000
+
+Creating thousands of threads is expensive.
+
+Instead Java creates
+
+Pool
+
+Thread1
+Thread2
+Thread3
+Thread4
+Thread5
+
+Whenever a request comes
+
+Task1 -> Thread1
+
+Task2 -> Thread2
+
+Task3 -> Thread1 (reused)
+
+Task4 -> Thread4
+
+The same threads are reused.
+
+This is called
+
+Thread Pool
+
+ExecutorService manages this thread pool.
+
+Example
+ExecutorService executor = Executors.newFixedThreadPool(3);
+
+executor.submit(() -> {
+    System.out.println(Thread.currentThread().getName());
+});
+
+executor.shutdown();
+
+Output
+
+pool-1-thread-1
+
+You didn't create any Thread manually.
+
+ExecutorService created and managed it.
+
+Callable + ExecutorService
+ExecutorService executor = Executors.newFixedThreadPool(2);
+
+Callable<Integer> task = () -> {
+    return 100;
+};
+
+Future<Integer> future = executor.submit(task);
+
+System.out.println(future.get());
+
+executor.shutdown();
+
+Output
+
+100
+What is Future?
+
+When you submit a Callable,
+
+it starts executing in another thread.
+
+But the result is not immediately available.
+
+Future acts like a placeholder.
+
+Task Running...
+
+↓
+
+Future
+
+↓
+
+Result Ready
+
+↓
+
+future.get()
+
+Example
+
+Future<Integer> future = executor.submit(task);
+
+Later
+
+Integer result = future.get();
+
+It waits until the task finishes.
+
+ExecutorService Interview Answer
+
+ExecutorService is an interface used to manage a pool of worker threads. Instead of creating a new thread for every task, we submit tasks to ExecutorService.
+It assigns an available thread from the pool, improving performance by reusing threads and reducing thread creation overhead. It supports executing Runnable and 
+Callable tasks.
+
+This answer is enough for most interviews.
+
+5. CompletableFuture
+
+This is asked in Java 8+ interviews.
+
+Why was CompletableFuture introduced?
+
+Suppose we use Future.
+
+Future<Integer> future = executor.submit(task);
+
+To get the result
+
+future.get();
+
+Problem
+
+future.get()
+
+blocks the current thread.
+
+If the task takes
+
+10 seconds
+
+your thread waits for
+
+10 seconds
+
+Not good.
+
+CompletableFuture solves this.
+
+It lets you execute code
+
+after the result is available
+
+without blocking.
+
+Example
+
+CompletableFuture.supplyAsync(() -> {
+    return "Hello";
+}).thenAccept(result -> {
+    System.out.println(result);
+});
+
+Output
+
+Hello
+
+Notice
+
+No
+
+future.get();
+
+No waiting.
+
+When the task finishes,
+
+Java automatically calls
+
+thenAccept()
+
+Another Example
+
+CompletableFuture<Integer> future =
+    CompletableFuture.supplyAsync(() -> 20);
+
+future.thenApply(num -> num * 2)
+      .thenAccept(System.out::println);
+
+Output
+
+40
+
+Flow
+
+20
+
+↓
+
+Multiply by 2
+
+↓
+
+40
+
+↓
+
+Print
+Real-world Example
+
+Imagine an e-commerce application.
+
+To display the product page, you need:
+
+Product details
+Inventory
+Reviews
+
+If each API call takes 2 seconds:
+
+Without parallel execution:
+
+Product → 2s
+Inventory → 2s
+Reviews → 2s
+
+Total = 6 seconds
+
+With CompletableFuture:
+
+CompletableFuture<Product> product =
+    CompletableFuture.supplyAsync(this::getProduct);
+
+CompletableFuture<Inventory> inventory =
+    CompletableFuture.supplyAsync(this::getInventory);
+
+CompletableFuture<Reviews> reviews =
+    CompletableFuture.supplyAsync(this::getReviews);
+
+CompletableFuture.allOf(product, inventory, reviews).join();
+
+All three tasks run concurrently, so the total time is roughly 2 seconds instead of 6 seconds (assuming enough threads are available).
+
 ==============================================================================================
 14. When Actually the return type Future will come in asynchronous programming ?
 

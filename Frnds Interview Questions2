@@ -282,6 +282,105 @@ It is like singleton but specific to web applications.
 6. WebSocket (@Scope("websocket")) (For WebSocket Communication)
 A single bean instance is created for each WebSocket session.
 Used in real-time messaging applications.
+
+
+1. Singleton — one object shared
+
+By default, Spring beans are Singleton.
+
+@Component
+public class PaymentService {
+}
+
+@Scope("singleton")
+@Component
+public class PaymentService {
+}
+
+Suppose two classes request PaymentService:
+
+Class A ─────┐
+             ↓
+        PaymentService
+             ↑
+Class B ─────┘
+
+Both get the same object.
+
+PaymentService obj1 = ...;
+PaymentService obj2 = ...;
+
+obj1 == obj2   // true
+Easy way to remember
+
+Singleton = SAME object
+
+2. Prototype — new object every time
+
+Now:
+
+@Component
+@Scope("prototype")
+public class PaymentService {
+}
+
+Every time Spring is asked for this bean, it creates a new object.
+
+Request 1 → PaymentService Object 1
+
+Request 2 → PaymentService Object 2
+
+Request 3 → PaymentService Object 3
+
+So:
+
+obj1 == obj2   // false
+Easy way to remember
+
+Prototype = NEW object
+
+Suppose your object contains state that should not be shared.
+
+@Component
+@Scope("prototype")
+public class ShoppingCart {
+
+    private List<String> products = new ArrayList<>();
+
+}
+
+Customer A gets:
+
+ShoppingCart Object 1
+products = [Laptop, Mouse]
+
+Customer B gets:
+
+ShoppingCart Object 2
+products = [Phone]
+
+The state is separate.
+
+If it were Singleton, the same instance would be shared, which could cause unwanted state sharing.
+
+"Prototype scope creates a new bean instance each time the bean is requested from the Spring container."
+For example:
+
+ApplicationContext context = ...;
+
+PaymentService p1 =
+    context.getBean(PaymentService.class);
+
+PaymentService p2 =
+    context.getBean(PaymentService.class);
+
+With prototype:
+
+p1 != p2
+
+With singleton:
+
+p1 == p2
 ========================================================
 *   can we implement custom scope and how
 A:  Yes! You can implement a custom scope in Spring by defining your own scope logic using the Scope interface. Here’s how:

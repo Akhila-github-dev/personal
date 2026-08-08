@@ -138,7 +138,20 @@ Best for creating RESTful web services.
 
 
 6.What is Agile Methodologies.
+| Term                     | Meaning                                           |
+| ------------------------ | ------------------------------------------------- |
+| **Sprint**               | Fixed period in which a set of work is completed  |
+| **Product Backlog**      | List of all features/tasks                        |
+| **Sprint Backlog**       | Tasks selected for the current sprint             |
+| **Daily Stand-up**       | Short daily meeting to discuss progress/blockers  |
+| **Sprint Planning**      | Meeting to decide what to work on                 |
+| **Sprint Review**        | Demonstrate completed work                        |
+| **Sprint Retrospective** | Discuss what went well and what can improve       |
+| **Product Owner**        | Decides/prioritizes business requirements         |
+| **Scrum Master**         | Facilitates Scrum process and removes impediments |
+| **Development Team**     | Developers, testers, etc. who build the product   |
 
+==========================================================
 *how can we create custom annotation
 A:You define an annotation using @interface in Java.
 

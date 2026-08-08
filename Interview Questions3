@@ -88,3 +88,45 @@ It is mainly used for cross-cutting concerns like logging, authentication, and r
 what are different design patterns?
 explain how to make singleton thread safe?
 find first non repeating character in a string using java8 feature?
+============================================
+Tight coupling means one class is directly dependent on a specific implementation of another class. If that implementation changes, the dependent class also needs
+to change."
+
+Example:
+
+class PaymentService {
+    private CardPayment payment = new CardPayment();
+}
+
+Here PaymentService is tightly coupled to CardPayment.
+
+2. How does Dependency Injection remove tight coupling?
+Dependency Injection removes tight coupling by making the class depend on an interface rather than directly creating a specific implementation.
+The required implementation is provided from outside by Spring.
+
+Example:
+
+class PaymentService {
+    private Payment payment;
+
+    PaymentService(Payment payment) {
+        this.payment = payment;
+    }
+}
+
+Now PaymentService depends on Payment interface, not directly on CardPayment.
+
+So we can provide:
+CardPayment
+UPIPayment
+NetBankingPayment
+
+without changing PaymentService.
+
+One-line memory trick:
+
+Tight coupling = class creates its dependency itself.
+DI = dependency is provided from outside.
+
+3. When is a Singleton Spring Bean garbage collected?
+A singleton Spring bean is generally eligible for garbage collection when the Spring ApplicationContext is destroyed and there are no other references to that bean

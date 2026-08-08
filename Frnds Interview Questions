@@ -887,11 +887,166 @@ CompletableFuture.allOf(product, inventory, reviews).join();
 All three tasks run concurrently, so the total time is roughly 2 seconds instead of 6 seconds (assuming enough threads are available).
 
 ==============================================================================================
-14. When Actually the return type Future will come in asynchronous programming ?
 
+Future represents the result of an asynchronous task, but retrieving the result with get() blocks the calling thread.
+CompletableFuture extends this by supporting non-blocking callbacks (thenApply, thenAccept, thenCompose), combining multiple asynchronous tasks,
+and better error handling, making it more suitable for modern asynchronous applications.
+=================================================================
+14. When Actually the return type Future will come in asynchronous programming ?
+A Future is returned when you submit an asynchronous task and want to get its result later.
+
+Think of it like ordering food at a restaurant.
+
+You place the order (submit the task).
+The kitchen starts preparing it (task runs in another thread).
+Meanwhile, you can do other work.
+When you're ready, you collect the food (call future.get()).
+Example
+ExecutorService executor = Executors.newFixedThreadPool(2);
+
+Future<String> future = executor.submit(() -> {
+    Thread.sleep(3000);
+    return "Task Completed";
+});
+
+System.out.println("Doing other work...");
+
+// Later
+String result = future.get();
+
+System.out.println(result);
+
+executor.shutdown();
+Execution
+Submit task
+      ↓
+Task starts in another thread
+      ↓
+Main thread continues doing other work
+      ↓
+future.get()
+      ↓
+Gets the result
+Why is it called asynchronous?
+
+Because after calling
+
+executor.submit(task);
+
+the main thread doesn't wait. The task executes in another thread.
+
+Only when you call
+
+future.get();
+
+does the current thread wait if the result isn't ready.
+
+2. Where is Future used in real projects?
+
+Suppose your Spring Boot application needs data from three microservices.
+
+User Service
+Order Service
+Payment Service
+
+Instead of calling them one after another, you submit all three tasks.
+
+Future<User> user = executor.submit(this::getUser);
+
+Future<Order> order = executor.submit(this::getOrder);
+
+Future<Payment> payment = executor.submit(this::getPayment);
+
+All three execute in parallel.
+
+Later,
+
+User u = user.get();
+Order o = order.get();
+Payment p = payment.get();
+
+This is a common use case.
+=============================================================
 15. How many ways to create thread pools in Java
- 
- 
+ The Executors utility class provides several factory methods.
+
+1. Fixed Thread Pool ⭐ (Most Common)
+ExecutorService executor =
+        Executors.newFixedThreadPool(5);
+Creates a fixed number of threads.
+Reuses the same threads.
+
+Example:
+
+5 threads
+
+Task1 → Thread1
+Task2 → Thread2
+Task3 → Thread3
+Task4 → Thread4
+Task5 → Thread5
+Task6 → waits until a thread becomes free
+
+Used when you know approximately how many tasks should run concurrently.
+
+2. Cached Thread Pool
+ExecutorService executor =
+        Executors.newCachedThreadPool();
+Creates threads as needed.
+Reuses idle threads.
+Can create many threads if the workload grows.
+
+Best for many short-lived asynchronous tasks.
+
+3. Single Thread Executor
+ExecutorService executor =
+        Executors.newSingleThreadExecutor();
+
+Only one thread processes all tasks.
+
+Task1
+ ↓
+Task2
+ ↓
+Task3
+
+Used when tasks must execute in order.
+
+4. Scheduled Thread Pool
+ScheduledExecutorService executor =
+        Executors.newScheduledThreadPool(2);
+
+Used for delayed or periodic execution.
+
+Example:
+
+executor.schedule(() -> {
+    System.out.println("Runs after 5 seconds");
+}, 5, TimeUnit.SECONDS);
+
+Or every 10 seconds:
+
+executor.scheduleAtFixedRate(task, 0, 10, TimeUnit.SECONDS);
+5. Work Stealing Pool (Java 8)
+ExecutorService executor =
+        Executors.newWorkStealingPool();
+Uses multiple processors efficiently.
+Idle threads can "steal" work from busy threads.
+Useful for CPU-intensive tasks.
+Summary
+Thread Pool	Purpose
+newFixedThreadPool()	Fixed number of reusable threads (most common)
+newCachedThreadPool()	Creates threads as needed for many short tasks
+newSingleThreadExecutor()	Executes tasks one by one in sequence
+newScheduledThreadPool()	Runs tasks after a delay or periodically
+newWorkStealingPool()	Optimizes CPU-intensive parallel work
+Interview Answer
+
+Java provides several ways to create thread pools using the Executors class. The most commonly used are newFixedThreadPool() for a fixed number of reusable threads,
+newCachedThreadPool() for dynamically creating threads, newSingleThreadExecutor() for sequential task execution, newScheduledThreadPool() for delayed or periodic
+tasks, and newWorkStealingPool() for efficient parallel execution of CPU-intensive tasks.
+
+ ================================================
  
 16. What are the projects you have worked on ?
 17. How was your day as a java developer every day. explain your roles and responsibilities ?

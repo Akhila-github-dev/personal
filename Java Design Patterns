@@ -16,12 +16,516 @@ To help me understand further, he might have mentioned these common patterns too
 
 Singleton Pattern: Used when you want to make sure only one instance of a class is created throughout the application.
  Example: Managing a single database connection.
-
+==================================================
 Factory Pattern: Creates objects without specifying the exact class to create.
  Example: A notification system where you decide at runtime whether to send an Email, SMS, or Push Notification.
 
+Suppose you have different notification types:
+Email
+SMS
+Push
+
+Your application decides at runtime which notification object it needs.
+
+Without Factory:
+if (type.equals("EMAIL")) {
+    EmailNotification email = new EmailNotification();
+}
+else if (type.equals("SMS")) {
+    SMSNotification sms = new SMSNotification();
+}
+The client has to know about all the concrete classes.
+
+Factory removes that responsibility.
+
+Step 1 — Create interface
+public interface Notification {
+    void send();
+}
+Step 2 — Implement it
+public class EmailNotification implements Notification {
+
+    @Override
+    public void send() {
+        System.out.println("Sending Email");
+    }
+}
+public class SMSNotification implements Notification {
+
+    @Override
+    public void send() {
+        System.out.println("Sending SMS");
+    }
+}
+Step 3 — Create Factory
+public class NotificationFactory {
+
+    public static Notification createNotification(String type) {
+
+        if (type.equalsIgnoreCase("EMAIL")) {
+            return new EmailNotification();
+        }
+
+        if (type.equalsIgnoreCase("SMS")) {
+            return new SMSNotification();
+        }
+
+        throw new IllegalArgumentException("Invalid type");
+    }
+}
+
+Now the client simply does:
+
+Notification notification =
+        NotificationFactory.createNotification("EMAIL");
+
+notification.send();
+
+Output:
+Sending Email
+
+The client doesn't need to know:
+new EmailNotification()
+new SMSNotification()
+
+The Factory handles object creation.
+Factory = "You tell me what you need; I'll create the object for you."
+Factory is a creational design pattern that encapsulates object creation and returns an appropriate implementation based on 
+some input or condition. It allows the client to create objects without directly depending on their concrete classes.
+==========================================================================
 Observer Pattern: Used when one object (subject) changes state and all its dependents (observers) are notified.
  Example: In an app where a user's profile is updated and multiple parts of the app need to reflect that change.
+This one is very important for understanding event-driven systems.
 
+Problem
+
+Suppose a YouTube channel uploads a video.
+
+There are 100 subscribers.
+
+You don't want to manually notify each subscriber.
+
+Instead:
+
+             YouTube Channel
+                   ↓
+          "New video uploaded"
+            /      |      \
+           ↓       ↓       ↓
+       User A   User B   User C
+
+The channel is the Subject.
+
+Users are Observers.
+
+Observer interface
+interface Observer {
+    void update(String message);
+}
+
+User:
+
+class User implements Observer {
+
+    private String name;
+
+    User(String name) {
+        this.name = name;
+    }
+
+    public void update(String message) {
+        System.out.println(name + " received: " + message);
+    }
+}
+Subject
+class YouTubeChannel {
+
+    private List<Observer> observers = new ArrayList<>();
+
+    public void subscribe(Observer observer) {
+        observers.add(observer);
+    }
+
+    public void uploadVideo(String video) {
+
+        System.out.println("Video uploaded");
+
+        for (Observer observer : observers) {
+            observer.update(video);
+        }
+    }
+}
+
+Usage:
+
+YouTubeChannel channel = new YouTubeChannel();
+
+User user1 = new User("Akhila");
+User user2 = new User("Rahul");
+
+channel.subscribe(user1);
+channel.subscribe(user2);
+
+channel.uploadVideo("Java Design Patterns");
+
+Output:
+
+Video uploaded
+Akhila received: Java Design Patterns
+Rahul received: Java Design Patterns
+Easy way to remember
+
+Observer = One changes → many get notified.
+
+Real-world examples
+Event listeners
+Notification systems
+Stock price updates
+UI events
+============================================================================================
 Strategy Pattern: Allows you to choose an algorithm at runtime.
  Example: A payment gateway system that selects between PayPal, Stripe, or Credit
+
+This is extremely useful in backend applications.
+
+Problem
+
+Suppose you have different payment methods:
+Credit Card
+PayPal
+UPI
+
+You don't want a huge if-else.
+
+Strategy interface
+interface PaymentStrategy {
+    void pay(double amount);
+}
+
+Credit card:
+
+class CreditCardPayment implements PaymentStrategy {
+
+    public void pay(double amount) {
+        System.out.println("Paid using Credit Card: " + amount);
+    }
+}
+
+UPI:
+
+class UPIPayment implements PaymentStrategy {
+
+    public void pay(double amount) {
+        System.out.println("Paid using UPI: " + amount);
+    }
+}
+Payment service
+class PaymentService {
+
+    private PaymentStrategy strategy;
+
+    PaymentService(PaymentStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public void makePayment(double amount) {
+        strategy.pay(amount);
+    }
+}
+
+Now:
+
+PaymentService service =
+        new PaymentService(new UPIPayment());
+
+service.makePayment(1000);
+
+Output:
+
+Paid using UPI: 1000
+
+Tomorrow you can change:
+
+new CreditCardPayment()
+
+without changing PaymentService.
+
+Strategy = Choose an algorithm/behavior at runtime.
+Strategy is a behavioral design pattern that defines a family of algorithms, encapsulates each algorithm separately, and allows the appropriate algorithm to be
+selected at runtime.
+===================================================================
+Abstract Factory Design Pattern
+
+This is where people usually get confused.
+Factory
+Creates one type of product.
+
+Example:
+
+NotificationFactory
+
+   → Email
+   → SMS
+   → Push
+Abstract Factory
+
+Creates families of related objects.
+
+Imagine you're building a UI.
+
+You have:
+
+Windows UI
+    Button
+    Checkbox
+
+Mac UI
+    Button
+    Checkbox
+
+You want the entire UI to belong to the same family.
+
+Interfaces
+interface Button {
+    void click();
+}
+interface Checkbox {
+    void check();
+}
+Windows products
+class WindowsButton implements Button {
+
+    public void click() {
+        System.out.println("Windows Button");
+    }
+}
+class WindowsCheckbox implements Checkbox {
+
+    public void check() {
+        System.out.println("Windows Checkbox");
+    }
+}
+Mac products
+class MacButton implements Button {
+
+    public void click() {
+        System.out.println("Mac Button");
+    }
+}
+class MacCheckbox implements Checkbox {
+
+    public void check() {
+        System.out.println("Mac Checkbox");
+    }
+}
+Abstract Factory
+interface UIFactory {
+
+    Button createButton();
+
+    Checkbox createCheckbox();
+}
+
+Windows factory:
+
+class WindowsFactory implements UIFactory {
+
+    public Button createButton() {
+        return new WindowsButton();
+    }
+
+    public Checkbox createCheckbox() {
+        return new WindowsCheckbox();
+    }
+}
+
+Mac factory:
+
+class MacFactory implements UIFactory {
+
+    public Button createButton() {
+        return new MacButton();
+    }
+
+    public Checkbox createCheckbox() {
+        return new MacCheckbox();
+    }
+}
+
+Client:
+
+UIFactory factory = new WindowsFactory();
+
+Button button = factory.createButton();
+Checkbox checkbox = factory.createCheckbox();
+
+button.click();
+checkbox.check();
+
+The important point is:
+
+             UIFactory
+             /       \
+            /         \
+ WindowsFactory      MacFactory
+     /     \           /     \
+ Button  Checkbox    Button  Checkbox
+Easy way to remember
+
+Factory → creates an object/product
+
+Abstract Factory → creates a family of related objects
+Abstract Factory is a creational design pattern that provides an interface for creating families of related objects without specifying their concrete classes.
+
+=================================================================
+Builder Design Pattern
+
+Suppose you have a class with many fields:
+
+User user = new User(
+    "Akhila",
+    27,
+    "Hyderabad",
+    "abc@gmail.com",
+    "9999999999",
+    true
+);
+
+This becomes difficult to understand.
+
+Which value represents what?
+
+Also, what if some fields are optional?
+
+Builder solves this.
+
+User class
+class User {
+
+    private String name;
+    private int age;
+    private String city;
+    private String email;
+
+    private User(Builder builder) {
+        this.name = builder.name;
+        this.age = builder.age;
+        this.city = builder.city;
+        this.email = builder.email;
+    }
+
+    public static class Builder {
+
+        private String name;
+        private int age;
+        private String city;
+        private String email;
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder age(int age) {
+            this.age = age;
+            return this;
+        }
+
+        public Builder city(String city) {
+            this.city = city;
+            return this;
+        }
+
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public User build() {
+            return new User(this);
+        }
+    }
+}
+
+Now creating the object becomes:
+
+User user = new User.Builder()
+        .name("Akhila")
+        .age(27)
+        .city("Hyderabad")
+        .email("abc@gmail.com")
+        .build();
+
+Much easier to read.
+
+Why is this called Builder?
+Because you're building the object step by step.
+
+Builder
+   ↓
+name()
+   ↓
+age()
+   ↓
+city()
+   ↓
+email()
+   ↓
+build()
+   ↓
+User object
+Real-world Java example
+
+You've probably seen:
+
+StringBuilder builder = new StringBuilder();
+
+builder.append("Hello")
+       .append(" ")
+       .append("World");
+
+And in Spring/Java applications, Lombok can generate builder APIs:
+
+@Builder
+public class User {
+    private String name;
+    private int age;
+    private String city;
+}
+
+Then:
+
+User user = User.builder()
+        .name("Akhila")
+        .age(27)
+        .city("Hyderabad")
+        .build();
+Easy way to remember
+
+Builder = Create a complex object step by step.
+
+🔥 All 6 patterns together
+
+This is the part I want you to memorize for interviews:
+
+| Pattern              | Main purpose              | Easy memory                     |
+| -------------------- | ------------------------- | ------------------------------- |
+| **Singleton**        | One instance              | **Only ONE**                    |
+| **Factory**          | Create an object          | **Give me ONE type**            |
+| **Abstract Factory** | Create related objects    | **Give me a FAMILY**            |
+| **Observer**         | Notify multiple objects   | **One changes → MANY notified** |
+| **Strategy**         | Select behavior/algorithm | **Choose behavior**             |
+| **Builder**          | Construct complex object  | **Build step-by-step**          |
+
+And their categories:
+CREATIONAL
+│
+├── Singleton
+├── Factory
+├── Abstract Factory
+└── Builder
+
+BEHAVIORAL
+│
+├── Observer
+└── Strategy

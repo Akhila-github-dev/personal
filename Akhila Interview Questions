@@ -658,6 +658,24 @@ deloitte 1st round
 what happen if i give @sevice to @component
 “@Service is a specialization of @Component. If I use @Component instead of @Service, Spring will still create the bean and everything works fine.
 But @Service is preferred because it clearly represents business logic and improves code readability and maintainability.”
+===========================
+if you put @Component instead of @Controller in the controller layer:
+
+@Component
+public class UserController {
+    
+    @GetMapping("/users")
+    public String getUsers() {
+        return "users";
+    }
+}
+What happens?
+✅ Spring will create the class as a bean.
+❌ Spring MVC will not recognize it as a Controller.Therefore, @GetMapping, @PostMapping, etc. won't work as request mappings.
+Calling /users will typically result in 404 Not Found.
+@Component creates a Spring bean, but it doesn't tell Spring MVC that the class is a controller. So the request mappings won't be registered.
+@Component → Bean
+@Controller → Bean + Web Controller
 ====================================================
 where we use @component
 If I annotate a class with @Component, Spring will create its object and manage it in the application context.

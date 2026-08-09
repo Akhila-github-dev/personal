@@ -766,7 +766,37 @@ When multiple beans of the same type exist, we use @Qualifier to tell Spring whi
 
 
 “@Autowired = inject by type automatically, @Qualifier = specify which bean when multiple exist.”
+| `@Primary`                            | `@Qualifier`                           |
+| ------------------------------------- | -------------------------------------- |
+| Gives one bean **default preference** | Explicitly selects a **specific bean** |
+| Used when multiple beans exist        | Used when multiple beans exist         |
+| Less specific                         | More specific                          |
+| Can be used at class level            | Usually used at injection point        |
+@Service
+@Primary
+class EmailService implements NotificationService {
+}
+@Service("smsService")
+class SmsService implements NotificationService {
+}
 
+Now:
+
+@Autowired
+private NotificationService service;
+
+➡️ EmailService is injected because it is @Primary.
+
+But:
+
+@Autowired
+@Qualifier("smsService")
+private NotificationService service;
+
+➡️ SmsService is injected.
+
+“@Primary defines the default bean when multiple beans of the same type are available, whereas @Qualifier is used to explicitly specify
+which bean should be injected. @Qualifier has higher priority than @Primary.”
 ===========================================================================================
 nullpointerexcetion
 String s=null;

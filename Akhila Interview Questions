@@ -882,9 +882,7 @@ Output
 Animal Sound
 Dog Sound
 
-Notice that both methods exist independently.
-
-This is method hiding, not overriding.
+Notice that both methods exist independently.This is method hiding, not overriding.
 
 Why isn't it overriding?
 
@@ -895,21 +893,14 @@ For instance methods:
 Animal a = new Dog();
 a.sound();   // Dog's implementation
 
-The JVM decides at runtime which method to call.
-
-But static methods belong to the class, not to an object.
-
-The JVM knows exactly which method to call at compile time.
-
+The JVM decides at runtime which method to call.But static methods belong to the class, not to an object.The JVM knows exactly which method to call at compile time.
 So:
-
 Animal.sound();   // Calls Animal's static method
 Dog.sound();      // Calls Dog's static method
 
 No runtime decision is involved.
 
 Can an abstract class have static methods?
-
 ✅ Yes.
 
 abstract class Animal {
@@ -924,10 +915,7 @@ abstract class Animal {
 This is perfectly valid.
 
 Can a static method be abstract?
-
 ❌ No.
-
-This is illegal.
 
 abstract class Animal {
 
@@ -935,9 +923,7 @@ abstract class Animal {
 }
 Why?
 abstract means the subclass must provide an implementation.
-static methods belong to the class itself and cannot be overridden.
-
-These two concepts contradict each other.
+static methods belong to the class itself and cannot be overridden.These two concepts contradict each other.
 
 =================================================================
 y we can override static method then y to keep static method in abstract class
@@ -978,23 +964,14 @@ Output:
 HighRadius
 Developer Salary
 Why is companyName() static?
-Because every employee belongs to the same company.
-
-It doesn't depend on an object.
-
-Instead of creating a Developer object just to get the company name,
+Because every employee belongs to the same company.It doesn't depend on an object.Instead of creating a Developer object just to get the company name,
 
 Developer d = new Developer();
 System.out.println(d.companyName());   // Not recommended
 
-we simply do
-
-System.out.println(Employee.companyName());
-
-No object needed.
+we simply do System.out.println(Employee.companyName()); . No object needed.
 
 Then why can't we override it?
-
 Suppose Java allowed overriding.
 
 abstract class Employee {
@@ -1018,24 +995,7 @@ e.display();
 
 What should be printed?
 
-Should it print
-
-Employee
-
-or
-
-Developer
-
-Static methods belong to the class, not the object.
-
-The compiler sees
-
-Employee e
-
-So it calls
-
-Employee.display();
-
+Should it print Employee or Developer. Static methods belong to the class, not the object. The compiler sees Employee e , So it calls Employee.display();
 There is no runtime polymorphism.
 ========================================================================
 shown program string equals comparsion 

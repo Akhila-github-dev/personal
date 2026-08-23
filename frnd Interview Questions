@@ -209,3 +209,21 @@ Better GC + performance
 “Java 17 introduced sealed classes, records, pattern matching for instanceof, text blocks, and improved performance with enhanced garbage collectors.”
 ===================================
 Project explanation
+==========================
+Tell me about yourself and projects you worked on.
+
+2. What is ExecutorService in Java?
+
+3. What is Virtual threads vs Platform Threads
+
+4. How to secure your java application?
+
+5. Compare Jwt and OAuth token and what will you prefer to use?
+
+6. What is difference between using Volatile vs Synchronised.
+
+7. Write a program to count the characters from given String s1 ="This is my Java Program"
+
+8. Let's say if you are working on production banking application and there is slight delay in loading application, how will you debug it?
+
+9. Write a program to print even numbers and multiply by 5 using java8 stream.

@@ -1,3 +1,258 @@
+
+N+1 problem in hibernate
+N+1 problem occurs when Hibernate executes 1 query to fetch parent records, and then executes N additional queries to fetch related child records one by one.
+
+First 1 query → all parent records kosam
+Then N queries → each parent ki related data kosam
+
+So total: 1 + N queries, Anduke N+1 problem ani antaru.
+
+2. Real-time example
+Suppose manaki 3 departments unnayi.
+Department table
+id	name
+1	IT
+2	HR
+3	Finance
+Employee table
+id	name	department_id
+101	Ravi	1
+102	Sita	1
+103	John	2
+104	Priya	3
+105	Ram	2
+
+Relationship:
+One department can have many employees.
+
+3. Java entities
+
+Department:
+
+@Entity
+public class Department {
+
+    @Id
+    private Long id;
+
+    private String name;
+
+    @OneToMany(mappedBy = "department")
+    private List<Employee> employees;
+
+}
+
+Employee:
+
+@Entity
+public class Employee {
+
+    @Id
+    private Long id;
+
+    private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
+
+}
+
+Now suppose we write:
+
+List<Department> departments = departmentRepository.findAll();
+
+Hibernate first executes:
+
+SELECT * FROM department;
+
+Database returns:
+
+IT
+HR
+Finance
+
+So far 1 query.
+
+4. Now actual N+1 problem starts
+
+Suppose code is:
+
+for (Department department : departments) {
+
+    System.out.println(department.getEmployees());
+
+}
+
+getEmployees() call chesinappudu Hibernate related employees ni fetch cheyyali.
+
+So Hibernate may execute:
+
+For IT -> SELECT * FROM employee WHERE department_id = 1;
+For HR ->  SELECT * FROM employee WHERE department_id = 2;
+For Finance -> SELECT * FROM employee WHERE department_id = 3;
+So total queries:
+1 query → departments
++ 3 queries → employees for each department
+= 4 queries
+
+There are 3 departments. So: 1 + 3 = 4 queries
+That's N+1.
+
+5. What if we have 100 departments?
+
+This is where the problem becomes serious.
+
+1 query → departments
+100 queries → employees
+Total: 101 queries
+If there are 1000 departments:
+1001 queries
+Database ki unnecessary load vastundi.
+
+6. Why does Hibernate do this?
+Usually this happens because of relationships and lazy loading.
+
+For example:
+@OneToMany(mappedBy = "department")
+private List<Employee> employees;
+@OneToMany default fetch type is generally: LAZY
+
+Meaning:"Department ni ippudu fetch cheyyi. Employees ni immediately fetch cheyyaku. Employees actually kavali anappudu fetch cheyyi."
+So:departmentRepository.findAll();
+first departments fetch chestundi.
+
+But:department.getEmployees();
+when you access employees, Hibernate says:
+"Okay, employees kavali. Database ki query pampista."
+For every department separate query execute avvachu.
+That's how N+1 occurs.
+
+7. Very important point
+
+Lazy loading itself is NOT the problem.
+This is important for interview.
+You should NOT say:
+"Lazy loading causes N+1 problem."
+
+Better answer:
+"N+1 can occur when lazy-loaded associations are accessed inside a loop, causing Hibernate to execute one additional query for each parent entity."
+
+ How to solve N+1?
+1. JOIN FETCH
+
+This is one of the most common solutions.
+
+Repository:
+
+@Query("""
+       SELECT d
+       FROM Department d
+       JOIN FETCH d.employees
+       """)
+List<Department> findAllDepartmentsWithEmployees();
+
+Now Hibernate can fetch departments and employees together using a join.
+
+Conceptually SQL:
+
+SELECT d.*, e.*
+FROM department d
+JOIN employee e
+ON d.id = e.department_id;
+
+Instead of: 1 + N queries
+we can get the required data with one query.
+
+2. EntityGraph
+@EntityGraph(attributePaths = {"employees"})
+List<Department> findAll();
+
+This tells JPA:"When fetching Department, also fetch employees."
+Useful when you don't want to write JPQL manually.
+
+3. Batch fetching
+@BatchSize(size = 10)
+@OneToMany(mappedBy = "department")
+private List<Employee> employees;
+
+Instead of:
+
+Query department 1
+Query department 2
+Query department 3
+Query department 4
+...
+
+Hibernate can group them into batches.
+
+For example:
+
+SELECT *
+FROM employee
+WHERE department_id IN (1,2,3,4,5,6,7,8,9,10);
+
+So number of queries can reduce significantly.
+
+12. Don't simply change LAZY to EAGER
+
+Beginner ga chala mandi ila anukuntaru
+"N+1 problem undi → LAZY ni EAGER ga change chestha."
+
+❌ This is not a good general solution.Because EAGER fetching can itself cause unnecessary data fetching and performance problems.
+
+Better approaches depend on the use case:
+JOIN FETCH
+@EntityGraph
+batch fetching
+carefully designed queries/projections
+"What is N+1 problem in Hibernate?"
+"N+1 is a performance problem that can occur when Hibernate fetches a list of parent entities using one query and then executes an additional query for each parent
+entity to load its associated child entities.
+For example, if I have 100 departments and I fetch all departments using one query, and then access employees for each department inside a loop,
+Hibernate may execute one query for departments and 100 additional queries for employees. So instead of 1 query, we end up with 101 queries.
+
+This is called the N+1 problem. We can avoid it using techniques such as JPQL JOIN FETCH, EntityGraph, or batch fetching depending on the use case."
+"Why does it happen?"
+It commonly happens when an association is lazy-loaded and we access that association for multiple parent entities, especially inside a loop. Hibernate then
+triggers a separate SQL query for each parent."
+
+Example:
+
+List<Department> departments = repository.findAll();
+
+for (Department department : departments) {
+    department.getEmployees();
+}
+15. "How do you identify N+1?"
+I check the SQL generated by Hibernate. If I see one query fetching the parent records followed by repeated similar queries for the child table,
+usually with different foreign-key values, that indicates an N+1 problem."
+
+For example logs:
+
+SELECT * FROM department;
+
+SELECT * FROM employee WHERE department_id=1;
+SELECT * FROM employee WHERE department_id=2;
+SELECT * FROM employee WHERE department_id=3;
+SELECT * FROM employee WHERE department_id=4;
+...
+
+Seeing this pattern is a strong indication of N+1.
+
+16. One-line memory trick 🧠
+
+Remember this:
+
+1 query for parent + N queries for children = N+1 problem
+
+Example:
+10 departments
+1 query → departments
+10 queries → employees
+Total = 11 queries
+N = number of parent records.
+=====================================================================================
 At this stage of my career, I'm looking for a role where I can take on broader backend responsibilities, work on larger-scale 
 distributed systems, and continue growing technically. I'm not switching because of dissatisfaction; I'm switching because 
 I'm looking for long-term technical growth and opportunities to contribute to more complex engineering challenges

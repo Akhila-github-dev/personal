@@ -1,0 +1,573 @@
+Kafka
+
+Kafka is a distributed event streaming platform used to send, store, and process messages/events between applications.
+
+Suppose mana application lo Order placed ayyindi.
+
+Order service ki order vachindi:
+
+Order #101
+Customer: Ravi
+Amount: ₹5000
+
+Now mana system lo different services ki ee information kavali:
+
+Order Service
+      |
+      ↓
+"Order #101 placed"
+      |
+      ├──→ Payment Service
+      |
+      ├──→ Notification Service
+      |
+      └──→ Inventory Service
+
+Instead of Order Service directly calling all three services:
+
+Order → Payment
+Order → Notification
+Order → Inventory
+
+Kafka ni middle lo use cheyyachu:
+
+                 Kafka
+                  |
+        "Order #101 placed"
+          /        |        \
+         ↓         ↓         ↓
+     Payment   Notification  Inventory
+
+Kafka acts like a middleman/message platform.
+
+2. Real-life example 🏦
+
+Imagine a post office.
+
+Ravi oka parcel send chestadu.
+
+Ravi
+ ↓
+Post Office
+ ↓
+Different people receive parcel
+
+Ravi ki each person house ki individually vellalsina avasaram ledu.
+
+Similarly:
+
+Producer
+   ↓
+ Kafka
+   ↓
+Consumers
+
+Producer message publish chestundi.Kafka message ni store chestundi.Consumers message ni read chestayi.
+
+3. Kafka lo important components
+
+You mainly need to understand these:
+
+Producer
+Consumer
+Topic
+Partition
+Broker
+Offset
+Consumer Group
+
+4. Producer ante enti?
+
+Producer = message send chese application.
+
+Example:
+Mana Order Service order create chesindi.
+
+Order Service
+
+It sends:
+
+{
+  "orderId": 101,
+  "customerName": "Ravi",
+  "amount": 5000
+}
+
+Kafka ki.
+
+So:
+Producer is an application that publishes messages/events to Kafka.
+
+5. Topic ante enti?
+Topic = messages ni category-wise store chese place.Suppose Kafka lo topics unnayi:
+
+order-topic
+payment-topic
+notification-topic
+
+Order-related messages:
+order-topic
+Payment-related messages:
+payment-topic
+So Order Service:
+Order Service
+     |
+     | message
+     ↓
+order-topic
+Think of topic like a folder/category.
+
+6. Sample data chuddam
+Suppose 3 orders create ayyayi.
+
+Order 101
+{
+  "orderId": 101,
+  "customer": "Ravi",
+  "amount": 5000
+}
+Order 102
+{
+  "orderId": 102,
+  "customer": "Sita",
+  "amount": 3000
+}
+Order 103
+{
+  "orderId": 103,
+  "customer": "John",
+  "amount": 7000
+}
+
+Producer ee messages ni:order-topic ki publish chestundi.
+
+Conceptually:
+order-topic
+
+Message 1 → Order 101
+Message 2 → Order 102
+Message 3 → Order 103
+7. Consumer ante enti?
+Consumer = Kafka nunchi messages read chese application.
+Example:
+Payment Service ki order information kavali. So:
+Payment Service = Consumer
+It consumes messages from:
+order-topic
+
+Flow:
+
+Order Service
+   |
+   | PRODUCE
+   ↓
+Kafka
+   |
+   | CONSUME
+   ↓
+Payment Service
+
+Simple.
+
+8. Now Partition enti? ⭐
+Idi interviews lo definitely ask cheyyachu.
+Topic internally partitions ga divide avvachu.
+order-topic
+
+has 3 partitions:
+
+Partition 0
+Partition 1
+Partition 2
+Messages distribute avvachu:
+Partition 0:
+Order 101
+Order 104
+Order 107
+
+Partition 1:
+Order 102
+Order 105
+Order 108
+
+Partition 2:
+Order 103
+Order 106
+Order 109
+
+Why?
+Because Kafka large number of messages ni handle cheyyali.
+Instead of one place lo everything store cheyyadam, multiple partitions lo distribute chestundi.
+This allows parallel processing and scalability.
+
+9. Broker ante enti?
+
+Broker = Kafka server. Suppose mana Kafka cluster lo 3 servers unnayi:
+
+Broker 1
+Broker 2
+Broker 3
+
+These brokers store Kafka data.
+
+Kafka Cluster
+   |
+   ├── Broker 1
+   ├── Broker 2
+   └── Broker 3
+
+So:
+
+Broker is a Kafka server that stores and serves messages.
+
+10. Offset ante enti?
+Suppose partition lo messages:
+
+Partition 0
+
+Offset 0 → Order 101
+Offset 1 → Order 104
+Offset 2 → Order 107
+Offset 3 → Order 110
+
+Offset = message position/sequence number within a partition.
+
+So if consumer already processed:
+
+Offset 0
+Offset 1
+
+next time it can continue from:
+
+Offset 2
+
+That's why Kafka can keep track of consumer progress.
+
+11. Consumer Group enti? ⭐
+
+Suppose mana payment service ki 3 instances unnayi:
+
+Payment Service 1
+Payment Service 2
+Payment Service 3
+
+All three same work cheyyali. We put them in same:
+payment-group. Then Kafka can distribute partitions among them.
+
+Suppose topic has:
+
+Partition 0
+Partition 1
+Partition 2
+
+Consumers:
+
+Payment-1 → Partition 0
+Payment-2 → Partition 1
+Payment-3 → Partition 2
+
+Now work parallel ga jarugutundi.
+
+12.Same consumer group
+order-topic
+and one consumer group:
+payment-group has 3 consumers.
+Each message is processed by one consumer within that group.
+
+Example:
+
+Partition 0 → Payment Consumer 1
+Partition 1 → Payment Consumer 2
+Partition 2 → Payment Consumer 3
+
+So same message ni three consumers process cheyyavu.
+
+13. But different consumer groups?
+
+Now interesting part.
+
+Suppose same order information:
+
+Order #101
+
+Payment ki kuda kavali. Notification ki kuda kavali.Inventory ki kuda kavali.
+
+We can have:
+order-topic
+      |
+      ├── payment-group
+      |
+      ├── notification-group
+      |
+      └── inventory-group
+
+Each group independently consumes the message.
+
+So:
+
+Order #101
+    |
+    ↓
+order-topic
+    |
+    ├──→ Payment Group
+    |
+    ├──→ Notification Group
+    |
+    └──→ Inventory Group
+
+This is one of Kafka's biggest advantages.
+
+14. Kafka vs REST API
+
+Suppose Order Service needs to tell Payment Service:
+
+REST approach
+Order Service
+     |
+     | HTTP request
+     ↓
+Payment Service
+
+Order Service directly depends on Payment Service.
+
+If Payment Service is down:
+
+Order Service → Payment Service ❌
+
+Potentially request fails or needs retry logic.
+
+Kafka approach
+Order Service
+     |
+     ↓
+Kafka
+     |
+     ↓
+Payment Service
+
+Order Service publishes:
+
+Order #101 created
+
+Kafka stores it.
+
+Payment Service can process it when available.
+
+So services are more loosely coupled.
+
+15. Kafka is not exactly a database
+
+Kafka stores messages, but Kafka's primary purpose is:
+
+Event streaming / messaging and processing events.
+
+Example:
+
+Order Created
+Payment Completed
+Customer Registered
+Invoice Generated
+
+These are events.
+
+Kafka stores and streams these events to consumers.
+
+16. Real-time example for your project
+
+Since you work with backend/microservices, imagine customer onboarding.
+Customer submits application
+
+OCA service creates customer.
+
+Instead of directly calling multiple services:
+
+OCA
+ ↓
+Credit Service
+ ↓
+Notification
+ ↓
+Risk Service
+
+we can publish an event:
+
+{
+  "customerId": 1001,
+  "event": "CUSTOMER_CREATED"
+}
+
+to:
+
+customer-topic
+
+Then:
+
+                    Kafka
+                      |
+              customer-topic
+                 /    |    \
+                ↓     ↓     ↓
+             Credit  Risk  Notification
+             Service Service Service
+
+Each service independently consumes the event.
+
+17. Why do companies use Kafka?
+1. Asynchronous communication
+
+Producer message send chesi continue avvachu.
+
+Producer → Kafka
+            ↓
+         Consumer
+
+Consumer later process cheyyachu.
+
+2. Loose coupling
+
+Services direct ga depend avvakunda Kafka through communicate chestayi.
+
+Service A → Kafka ← Service B
+3. Scalability
+
+Partitions + multiple consumers use chesi workload distribute cheyyachu.
+
+4. Fault tolerance
+
+Kafka messages persist chestundi and replication use cheyyachu.So broker failure scenarios lo data loss ni reduce cheyyadaniki Kafka replication provide chestundi.
+
+5. High throughput
+
+Kafka huge number of messages/events handle cheyyadaniki designed.
+
+18. Complete flow
+
+Now everything combine cheddam.
+
+Suppose customer places order.
+
+Step 1
+
+Order Service receives:
+
+Order #101
+Ravi
+₹5000
+Step 2
+
+Order Service = Producer
+It publishes message to:
+
+order-topic
+Step 3
+
+Kafka stores the message.
+
+order-topic
+    |
+    ├── Partition 0
+    ├── Partition 1
+    └── Partition 2
+Step 4
+
+Payment Service = Consumer
+
+It reads the message.
+
+Step 5
+
+Notification Service also reads it using another consumer group.
+
+Final:
+
+              Order Service
+                Producer
+                   |
+                   ↓
+              order-topic
+                   |
+          ┌────────┼────────┐
+          ↓        ↓        ↓
+       Payment  Notification Inventory
+       Group      Group       Group
+
+"Kafka is a distributed event streaming platform that is mainly used for asynchronous communication and processing events between different services.
+
+For example, in a microservices application, when an order is created, the Order Service can act as a producer and publish an Order Created event to an order topic 
+in Kafka. Payment, Notification, and Inventory services can act as consumers and consume that event based on their requirements.
+
+Kafka provides features like topics, partitions, consumer groups, offsets, and replication, which help with scalability, high throughput, fault tolerance, 
+and loose coupling between services."
+
+20."What is a topic?"
+
+"A topic is a logical category in Kafka where producers publish messages and consumers subscribe to consume those messages. A topic can be divided
+into multiple partitions for scalability and parallel processing."
+
+21. If interviewer asks "What is a partition?"
+"A partition is an ordered sequence of messages within a Kafka topic. Topics can have multiple partitions, which allow Kafka to distribute data
+and process messages in parallel."
+
+Example:
+
+order-topic
+
+Partition 0 → 101, 104, 107
+Partition 1 → 102, 105, 108
+Partition 2 → 103, 106, 109
+22. If interviewer asks "What is consumer group?"
+"A consumer group is a group of consumers working together to consume messages from a Kafka topic. Kafka distributes partitions among consumers 
+within the same group, which allows parallel processing."
+
+"Different consumer groups can independently consume the same messages."
+
+23. "What is offset?"
+"Offset is the unique sequential position of a message within a partition. Kafka uses offsets to track the consumer's progress while consuming messages."
+
+Example:
+
+Offset 0 → Order 101
+Offset 1 → Order 102
+Offset 2 → Order 103
+24. One diagram you should remember 🧠
+
+Just remember this:
+
+                 PRODUCER
+                    |
+                    |
+                    ↓
+              ┌───────────┐
+              │   KAFKA   │
+              │           │
+              │  TOPIC    │
+              │     ↓     │
+              │ PARTITIONS│
+              └─────┬─────┘
+                    |
+          ┌─────────┼─────────┐
+          ↓         ↓         ↓
+      Consumer  Consumer  Consumer
+          1         2         3
+          
+       Together = Consumer Group
+
+And:
+
+Producer
+   ↓
+Topic
+   ↓
+Partition
+   ↓
+Consumer Group
+   ↓
+Consumer
+
+Ee flow mind lo clear ga unte Kafka basics almost set. 
+
+🔥 Finally, Kafka ni one sentence lo gurthupettuko
+
+"Kafka is a distributed event streaming platform where producers publish events to topics, Kafka stores those events in partitions, and consumers read them
+using consumer groups."

@@ -183,6 +183,607 @@ TXN# — Matches the fixed prefix.
 -\\d{2}- — Matches the status code (2 digits, ignored).
 (\\w+) — Captures the status (alphanumeric text like SUCCESS, PENDING, etc.).
 =================================================================================
+Round 1: [00:41]
+ * Coding Questions (using Streams):
+   * Get a list of employee names who earn above the average salary 
+Ans) with streams:  double avgSalary = employees.stream()
+                                    .mapToDouble(Employee::getSalary)
+                                    .average()
+                                    .orElse(0);
+
+        // Filter employees above average salary
+        List<String> result = employees.stream()
+                                       .filter(e -> e.getSalary() > avgSalary)
+                                       .map(Employee::getName)
+                                       .collect(Collectors.toList());
+without steams:
+ double total = 0;
+        for (Employee e : employees) {
+            total += e.salary;
+        }
+
+        double avgSalary = total / employees.size();
+
+        // Step 2: Collect employees above average
+        List<String> result = new ArrayList<>();
+        for (Employee e : employees) {
+            if (e.salary > avgSalary) {
+                result.add(e.name);
+            }
+        }
+
+        System.out.println(result);
+    }
+================================================================================================
+
+   * Create a map with employee ID as key and name as value 
+Map<Integer, String> empMap = employees.stream()
+                .collect(Collectors.toMap(
+                        Employee::getId,
+                        Employee::getName
+                ));
+withoutsteams
+ Map<Integer, String> empMap = new HashMap<>();
+
+        for (Employee e : employees) {
+            empMap.put(e.id, e.name);
+        }
+
+   * Get the highest salary by department 
+Map<String, Double> result =
+    employees.stream()
+             .collect(Collectors.groupingBy(
+                 Employee::getDepartment,
+                 Collectors.collectingAndThen(
+                     Collectors.maxBy(Comparator.comparingDouble(Employee::getSalary)),
+                     opt -> opt.map(Employee::getSalary).orElse(0.0)
+                 )
+             ));
+
+
+import java.util.*;
+
+class Employee {
+    String name;
+    String department;
+    double salary;
+
+    Employee(String name, String department, double salary) {
+        this.name = name;
+        this.department = department;
+        this.salary = salary;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        List<Employee> employees = Arrays.asList(
+            new Employee("Alice", "IT", 50000),
+            new Employee("Bob", "IT", 70000),
+            new Employee("Charlie", "HR", 40000),
+            new Employee("David", "HR", 60000)
+        );
+
+        Map<String, Employee> result = new HashMap<>();
+
+        for (Employee e : employees) {
+            if (!result.containsKey(e.department) ||
+                e.salary > result.get(e.department).salary) {
+                result.put(e.department, e);
+            }
+        }
+
+        for (Map.Entry<String, Employee> entry : result.entrySet()) {
+            System.out.println(entry.getKey() + " -> " +
+                entry.getValue().name + " : " +
+                entry.getValue().salary);
+        }
+    }
+
+================================================================================
+
+   * Count the occurrences of each character in a string (pure Java, no streams) [01:41]
+ * Theoretical Questions:
+   * Explanation of the usage and return types of various stream operations (e.g., collect, filter)
+1. filter()
+✅ Purpose:
+
+Filters elements based on a condition (predicate)
+
+✅ Usage:
+stream.filter(x -> x > 10)
+✅ Return Type:
+Stream<T>
+💡 Example:
+List<Integer> nums = Arrays.asList(5, 15, 20);
+
+List<Integer> result = nums.stream()
+                           .filter(n -> n > 10)
+                           .toList();   // [15, 20]
+🔹 2. map()
+✅ Purpose:
+
+Transforms each element into another form
+
+✅ Usage:
+stream.map(x -> x * 2)
+✅ Return Type:
+Stream<R>
+💡 Example:
+List<String> names = Arrays.asList("a", "b");
+
+List<String> result = names.stream()
+                           .map(String::toUpperCase)
+                           .toList();   // ["A", "B"]
+🔹 3. flatMap()
+✅ Purpose:
+
+Flattens nested structures (Stream of Streams → single Stream)
+
+✅ Usage:
+stream.flatMap(x -> x.stream())
+✅ Return Type:
+Stream<R>
+💡 Example:
+List<List<Integer>> list = Arrays.asList(
+    Arrays.asList(1, 2),
+    Arrays.asList(3, 4)
+);
+
+List<Integer> result = list.stream()
+                           .flatMap(Collection::stream)
+                           .toList();   // [1, 2, 3, 4]
+🔹 4. collect()
+✅ Purpose:
+
+Converts stream into a collection or other structure
+
+✅ Usage:
+stream.collect(Collectors.toList())
+✅ Return Type:
+<R, A> R   // depends on collector
+💡 Common Collectors:
+toList() → List<T>
+toSet() → Set<T>
+toMap() → Map<K, V>
+groupingBy() → Map<K, List<T>>
+💡 Example:
+List<String> result = names.stream()
+                           .collect(Collectors.toList());
+🔹 5. forEach()
+✅ Purpose:
+
+Performs an action on each element
+
+✅ Usage:
+stream.forEach(System.out::println)
+✅ Return Type:
+void
+🔹 6. reduce()
+✅ Purpose:
+
+Reduces stream to a single value (aggregation)
+
+✅ Usage:
+stream.reduce((a, b) -> a + b)
+✅ Return Type:
+Optional<T>   // or T if identity provided
+💡 Example:
+Optional<Integer> sum = nums.stream()
+                            .reduce((a, b) -> a + b);
+🔹 7. findFirst() / findAny()
+✅ Purpose:
+
+Get an element from the stream
+
+✅ Return Type:
+Optional<T>
+🔹 8. anyMatch(), allMatch(), noneMatch()
+✅ Purpose:
+
+Check conditions on elements
+
+✅ Return Type:
+boolean
+💡 Example:
+boolean exists = nums.stream().anyMatch(n -> n > 10);
+🔹 9. sorted()
+✅ Purpose:
+
+Sort elements
+
+✅ Return Type:
+Stream<T>
+🔹 10. distinct()
+✅ Purpose:
+
+Remove duplicates
+
+✅ Return Type:
+Stream<T>
+🔹 11. limit() / skip()
+✅ Purpose:
+
+Control number of elements
+
+✅ Return Type:
+Stream<T>
+🔹 12. count()
+✅ Purpose:
+
+Count elements
+
+✅ Return Type:
+long
+🔹 Intermediate vs Terminal Operations
+🟢 Intermediate (lazy, return Stream)
+filter
+map
+flatMap
+sorted
+distinct
+limit, skip
+
+👉 They don’t execute until a terminal operation is called
+
+🔴 Terminal (trigger execution)
+collect
+forEach
+reduce
+count
+findFirst
+anyMatch
+
+==========================================================
+
+   * Difference between synchronized and concurrent hashmap 
+Ans) Collections.synchronizedMap() → makes the whole map thread-safe using a single lock
+ConcurrentHashMap → designed for concurrency using fine-grained locking / lock-free techniques
+✅ 1. Collections.synchronizedMap()
+📌 Usage:
+Map<Integer, String> map =
+    Collections.synchronizedMap(new HashMap<>());
+⚙️ How it works:
+Entire map is locked for every operation
+Only one thread at a time can access it
+🔁 Return Type:
+Map<K, V>
+⚠️ Iteration requires manual synchronization:
+synchronized (map) {
+    for (Integer key : map.keySet()) {
+        System.out.println(key);
+    }
+}
+✅ 2. ConcurrentHashMap
+📌 Usage:
+ConcurrentHashMap<Integer, String> map =
+    new ConcurrentHashMap<>();
+⚙️ How it works:
+Uses segment-level locking (Java 7) or bucket-level CAS (Java 8+)
+Multiple threads can read/write simultaneously
+🔁 Return Type:
+ConcurrentHashMap<K, V>
+✅ No need for manual synchronization during iteration:
+for (Integer key : map.keySet()) {
+    System.out.println(key);
+}
+📊 Comparison Table
+| Feature          | synchronizedMap                         | ConcurrentHashMap           |
+| ---------------- | --------------------------------------- | --------------------------- |
+| Locking          | Single lock (whole map)                 | Fine-grained / bucket-level |
+| Performance      | Slower under high concurrency           | Faster                      |
+| Thread Safety    | Yes                                     | Yes                         |
+| Iteration        | Must manually sync                      | No need                     |
+| Null keys/values | Allows 1 null key, multiple null values | ❌ Not allowed               |
+| Scalability      | Poor                                    | High                        |
+
+👉 Example:
+map.putIfAbsent(key, value);
+In ConcurrentHashMap → atomic operation ✅
+In synchronizedMap → not atomic ❌ (needs external sync)
+💡 When to Use What?
+✔️ Use synchronizedMap when:
+Low concurrency
+Simplicity matters
+Legacy code
+✔️ Use ConcurrentHashMap when:
+High concurrency environment
+Performance is critical
+Frequent reads/writes
+==============================================================
+   * Fail-fast vs. fail-safe iterators [02:31]
+   * Fork-join pool in thread pools [02:31]
+divide-and-conquer algorithms. It recursively splits large tasks into smaller subtasks using the fork operation, executes them in parallel, and combines the results using join. 
+Its key feature is the work-stealing algorithm, where idle worker threads steal tasks from busy threads to improve CPU utilization. 
+It's commonly used by parallel streams and many CompletableFuture operations.
+==================================================
+   * Thread pool used by parallel streams [02:38]
+Yes. Parallel Streams use the ForkJoinPool.commonPool() by default.
+
+Example
+List<Integer> numbers = List.of(1, 2, 3, 4, 5);
+
+numbers.parallelStream()
+       .forEach(n -> System.out.println(
+           Thread.currentThread().getName() + " : " + n
+       ));
+
+Possible output:
+
+ForkJoinPool.commonPool-worker-1 : 2
+ForkJoinPool.commonPool-worker-3 : 5
+ForkJoinPool.commonPool-worker-2 : 1
+main : 4
+ForkJoinPool.commonPool-worker-1 : 3
+
+Notice the thread names like:
+
+ForkJoinPool.commonPool-worker-1
+ForkJoinPool.commonPool-worker-2
+
+This shows that parallelStream() is using the common ForkJoinPool.
+
+Why does it use ForkJoinPool?
+
+A parallel stream:
+
+Splits the collection into smaller chunks (fork).
+Processes those chunks in parallel using worker threads.
+Combines the results (join).
+
+This divide-and-conquer approach is exactly what ForkJoinPool is designed for.
+
+Interview Question
+
+Q: Which thread pool is used by parallelStream()?
+By default, parallelStream() uses the ForkJoinPool.commonPool(), a shared thread pool that uses a work-stealing algorithm to efficiently execute tasks in parallel.
+
+Can we use our own ForkJoinPool?
+Yes. If you don't want to use the common pool, you can submit the parallel stream to a custom ForkJoinPool:
+
+ForkJoinPool pool = new ForkJoinPool(4);
+
+pool.submit(() ->
+    list.parallelStream()
+        .forEach(System.out::println)
+).join();
+
+This limits the parallelism to 4 worker threads instead of using the common pool.
+
+===========================================================
+   * In-depth questions about HashMap (internal working, hashcode calculation, value overriding, collision, time complexity) [02:43]
+HashMap stores data as key-value pairs. Internally, it uses an array of buckets, where each bucket stores one or more Node objects.
+
+When we call put(key, value), HashMap first calls hashCode() on the key to generate a hash value. It then applies an internal hashing function and calculates the bucket index.
+In Java, this is effectively done using (n - 1) & hash, where n is the table size. The default initial capacity is 16.
+
+If the bucket is empty, a new node is inserted. If another key maps to the same bucket, a collision occurs. HashMap then compares the keys using equals().
+If the keys are equal, the existing value is replaced. Otherwise, a new node is added to the bucket.
+
+Before Java 8, collisions were handled using a linked list. From Java 8 onwards, if a bucket contains more than 8 entries and the table size is at least 64,
+the linked list is converted into a red-black tree to improve lookup performance from O(n) to O(log n).
+
+When we call get(key), HashMap again computes the bucket index using hashCode(), then traverses the linked list or tree in that bucket and uses equals() 
+to locate the exact key and return its value.
+===============================================================
+   * Design patterns (Singleton, Prototype, Abstract Factory, Factory, Builder) [03:04]
+Singleton ensures that only one instance of a class is created throughout the application and provides a global access point to that instance.
+To save memory.
+When only one shared object is needed.
+example
+Logger
+Configuration Manager
+By default, Spring Beans are Singleton scoped. When we annotate a class with @Service, @Component, or @Repository, Spring creates only one instance 
+of that bean and reuses it across the application.
+
+Interview Answer
+
+Singleton pattern ensures only one object of a class is created during the application's lifetime. It is useful when a single shared instance is sufficient,
+such as configuration classes or service beans. In Spring Boot, beans are singleton by default.
+
+2. Factory Pattern
+Factory Pattern creates objects without exposing the object creation logic to the client. The client only asks for an object, and the factory decides which implementation to create.
+
+Suppose you have
+
+Payment
+
+CardPayment
+
+UPIPayment
+
+NetBankingPayment
+
+Instead of writing
+
+new CardPayment();
+
+you do
+
+Payment payment = PaymentFactory.getPayment("CARD");
+
+The factory decides which object to create.
+
+Spring IOC Container itself acts like a Factory because it creates and manages beans.
+Factory Pattern encapsulates object creation logic. Instead of creating objects directly using the new keyword,
+the client requests the factory to create the required object. This improves flexibility and reduces tight coupling.
+
+3. Abstract Factory Pattern 
+Factory creates one type of object.
+Abstract Factory creates families of related objects.
+
+Abstract Factory provides an interface for creating families of related objects without specifying their concrete classes.
+It is useful when multiple related objects need to be created together.
+
+4. Prototype Pattern 
+Prototype Pattern creates new objects by cloning an existing object instead of creating a new one from scratch.
+Prototype Pattern creates new objects by cloning existing objects. It is useful when object creation is expensive or when many similar objects need to be created.
+
+5. Builder Pattern 
+Builder Pattern is used to create complex objects step by step.
+
+Example
+
+Instead of
+
+Employee e = new Employee(
+"Akhila",
+27,
+"Hyderabad",
+90000,
+true,
+...
+);
+
+Use
+
+Employee employee =
+Employee.builder()
+       .name("Akhila")
+       .age(27)
+       .city("Hyderabad")
+       .salary(90000)
+       .build();
+
+Much more readable.
+
+Lombok
+@Builder
+
+uses the Builder Pattern.
+
+Builder Pattern is used to construct complex objects step by step. It improves code readability and avoids constructors with many parameters.
+In Spring Boot projects, we commonly use Lombok's @Builder annotation to implement this pattern.
+===================================================================================
+   * SQL: JPA, custom queries, native queries, procedures, triggers, functions, GROUP BY, HAVING, LIKE [03:24]
+   * Abstract classes [03:45]
+   * SOLID principles with examples [03:45]
+   * JUnit: Mocking static methods, private methods, disadvantages of PowerMockito, usage of Mockito, verify, times, never invoked, any time invoked with any parameter, return, assertions [04:06]
+Round 2: [04:40]
+ * Coding Question:
+   * Given a list of transactions (each with a list of items), count the items with an amount less than 50 (focus on using flatMap and count) [04:52]
+ * Theoretical Questions:
+   * When to use flatMap, map, and filter [05:41]
+   * How to implement the coding question logic without streams (pure Java) [05:53]
+   * SOLID principles with real-time examples [06:00]
+   * Encapsulation and its purpose [06:07]
+   * Other OOP concepts [06:20]
+   * Inbuilt functional interfaces (Predicate, Supplier, Consumer) [06:25]
+   * Creating and using custom functional interfaces (e.g., custom Predicate) [06:34]
+   * SQL:
+     * Find the second-highest salary from an employee table [06:48]
+     * Given two tables (customer and order), find customers who have made zero orders [06:54]
+   * Spring Boot:
+     * Filters and interceptors (purpose, return type, custom creation, differences) [07:24]
+     * Spring Boot project flow [07:44]
+   * Java 8 Date/Time API (changes, immutability, calculating date differences) [07:52]
+   * CompletableFuture (what it is, how to use it instead of threads) [08:06]
+   * Try-with-resources (what it is, alternatives, how it works) 
+Spring:
+     * Dependency injection (types, why constructor injection is preferred) [08:25]
+   * Spring Boot:
+     * Eureka server (what it is, how to register services, load balancer operation) [08:40]
+     * API Gateway (routing, programmatic vs. YML configuration, properties, predicates) [08:54]
+   * Microservices:
+     * Design patterns (CQRS, Saga, Orchestrator vs. Choreography) [09:29]
+     * Microservices design principles [09:50]
+   * Sealed classes and records [09:57]
+   * Design patterns (again, with examples and implementation details) [10:05]
+   * Kafka:
+     * How to send events to Kafka (KafkaTemplate, KafkaListener, KafkaConsumer) [10:22]
+     * Kafka configuration and basic communication [10:37]
+   * RestTemplate vs. WebClient (differences, Mono, Flux, blocking vs. non-blocking requests) [11:03]
+   * Agile ceremonies [11:37]
+   * Scenario-based questions (handling junior developers, sprint planning disagreements, handling major changes near the end of a sprint, managing a large team) [11:51]
+Round 3: [13:14]
+ * TreeMap internal working [13:20]
+ * TreeSet and HashSet internal working [13:28]
+ * Coding Question:
+   * Calculate the number of days between two dates (dd/mm/yyyy format) without using any internal date/time libraries (pure Java 7) [13:34]
+ * Serialization and Deserialization in Java [14:46]
+   * Problems with serialization/deserialization [14:46]
+   * JEP 290 (serialization/deserialization filter) [14:56]
+   * Forgery attacks in serialization and how to avoid them [15:06]
+ * Microservices Design Patterns [15:19]
+   * CQRS [15:19]
+   * Sidecar [15:26]
+ * Logging in Microservices [15:26]
+   * Logging frameworks used [15:26]
+   * Trace ID and Span ID (what they are, how to use them for navigation across microservices) [15:34]
+   * Which is constant across services (Trace ID or Span ID) [15:47]
+ * Microservices Deployment Strategies [15:52]
+   * Blue-green deployment [15:59]
+ * Spring Boot Application Flow [16:04]
+   * Request flow from hit to response (DispatcherServlet, filters, interceptors, controllers, services, repositories) [16:04]
+   * Interceptor methods (preHandle, postHandle, afterCompletion) [16:11]
+   * Filter chain [16:18]
+ * Authentication and Authorization [16:25]
+   * Basic Auth, OAuth, JWT [16:25]
+   * JWT format (header, payload, signature) [16:33]
+   * Claims in JWT payload (audience, primary audience, secondary audience, scope) [16:39]
+   * How to use JWT and OAuth in microservices [16:46]
+ * Spring Annotations [16:52]
+   * @Autowired, @Resource, @Inject, @Component [16:52]
+   * Downsides of @Autowired and @Resource [16:58]
+   * When to use each annotation [16:58]
+   * Difference between @Inject, @Autowired, and @Resource [17:05]
+   * Scenario-based question: If an interface has three implementations, what happens if you autowire a list of that interface? [17:12]
+ * Java Memory Management
+
+=========================================================================
+Round 1: Technical
+ * Build a REST API to store employees using Spring Boot [00:49]
+   * Includes writing the controller, service layer, and repository.
+   * Also covers Spring Boot project structure and dependencies.
+ * Implement a filter in a Spring Boot project [01:38]
+ * Rate limiter: What it is and how to implement it [01:50]
+ * Singleton pattern [01:56]
+   * What it is, how to break it, real-time usage, and how to make a class thread-safe.
+ * Garbage collection [02:41]
+   * Scenarios of object eligibility for garbage collection.
+   * Different types of garbage collectors.
+ * Scopes of a bean [03:45]
+   * Different scopes and real-time examples of when to use each.
+ * Marker interface [04:13]
+   * Usage, purpose, and examples of built-in marker interfaces in Java.
+ * Functional interfaces and predefined functional interfaces [04:37]
+ * Coding question: Extract strings ending with ".xls" using Java 8 streams [04:50]
+ * Coding question: Filter even numbers from a list and multiply them by 2 [05:33]
+ * Garbage collection algorithm used in Java 8 and later versions [05:51]
+ * SQL query to swap 'Male' and 'Female' in a gender column [05:58]
+ * Explanation of your project's architecture diagram [06:24]
+ * How to handle conflicts of opinion within a team [06:31]
+ * Can lambdas be used with normal interfaces, and why? [07:03]
+ * Real-time usage of Singleton and Prototype design patterns [07:19]
+ * If a Singleton class is extended, does it break the pattern? [07:42]
+ * Synchronization: What it is and different levels of synchronization [08:11]
+ * Serialization and Deserialization [08:41]
+   * What is JEP 290?
+   * What is jdk.serial.filter?
+   * What is the fundamental problem and how Java 9 addresses it.
+Round 2: Techno-Managerial
+ * Password rotation and encryption policies [09:46]
+ * How to decide thread pool size [10:22]
+ * How to decide the number of instances required for a microservice [10:35]
+ * OAuth [10:49]
+   * What it is, 2-legged vs 3-legged, public/private keys, JWT, certificate expiry, etc.
+ * Spring Boot flow [11:23]
+   * Filter, interceptor, controller, service, repository, DTOs, etc.
+   * Where to put authentication/authorization.
+ * Are WebLogic and Tomcat servers single-threaded or multi-threaded? [12:13]
+ * Java 8 features [12:18]
+   * Including CompletableFuture and how to handle exceptions.
+ * Design a REST API to construct SQL queries based on the input language [12:55]
+ * Microservices design patterns [14:19]
+   * Strangler, Saga (Orchestrator vs Choreography), CQRS.
+ * Logging in microservices [14:41]
+   * Trace ID, Span ID, Micrometer.
+ * What is Actuator? [14:47]
+   * Its purpose and how it's used for health checks.
+ * How to estimate effort for a user story in Agile [15:05]
+ * How to handle requirement changes two days before the iteration completion date [15:33]
+ * How to handle requirement changes after all changes have been completed and tested
+====================================================
 version control systems
 1.git
 2. bitbucket

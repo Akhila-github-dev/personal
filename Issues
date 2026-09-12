@@ -302,3 +302,280 @@ Then I would study the official documentation, build a small proof of concept, a
 when necessary. I would continue learning in parallel while delivering my assigned tasks, ensuring I become productive without
 delaying the project. In my career, I've had to learn new frameworks and business domains quickly, and I've been able to adapt
 successfully by following this approach.
+
+
+Step 1: Customer Entity
+public class Customer {
+
+    private Long id;
+    private String name;
+    private String email;
+
+    public Customer(Long id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+}
+Step 2: Repository
+
+Normally in Spring Boot:
+
+Optional<Customer> findById(Long id);
+
+Suppose it returns
+
+Optional<Customer> customer =
+Optional.of(new Customer(101L,"Akhila","akhila@gmail.com"));
+
+Now let's see all the Optional methods.
+
+1. isPresent()
+if(customer.isPresent()) {
+    System.out.println("Customer Found");
+}
+
+Output
+
+Customer Found
+Interview Answer
+
+Checks whether Optional contains a value.
+
+2. ifPresent()
+
+Instead of writing
+
+if(customer.isPresent()){
+    System.out.println(customer.get().getName());
+}
+
+Write
+
+customer.ifPresent(c ->
+        System.out.println(c.getName()));
+
+Output
+
+Akhila
+Interview Answer
+
+Executes the lambda only if the value exists.
+
+3. get()
+Customer c = customer.get();
+
+System.out.println(c.getEmail());
+
+Output
+
+akhila@gmail.com
+
+⚠️ Never use
+
+Optional.empty().get();
+
+It throws
+
+NoSuchElementException
+4. orElse()
+
+Suppose customer doesn't exist.
+
+Optional<Customer> customer =
+Optional.empty();
+
+Customer c = customer.orElse(
+        new Customer(0L,"Guest","guest@gmail.com"));
+
+System.out.println(c.getName());
+
+Output
+
+Guest
+Interview Answer
+
+Returns the value if present; otherwise returns the default object.
+
+5. orElseGet()
+Customer c = customer.orElseGet(() ->
+        new Customer(0L,"Generated User","guest@gmail.com"));
+
+Difference:
+orElse()
+Always creates the object.
+
+orElseGet()
+
+Creates it only if needed.
+
+6. orElseThrow()
+
+This is the most common one in Spring Boot.
+
+Customer c = repository.findById(id)
+        .orElseThrow(() ->
+        new RuntimeException("Customer Not Found"));
+
+If customer doesn't exist
+
+Output
+
+RuntimeException:
+Customer Not Found
+
+This is exactly how we use it in projects.
+
+7. map()
+
+Suppose you only need the customer's email.
+
+Without map
+
+Customer c = customer.get();
+
+System.out.println(c.getEmail());
+
+Using map
+
+Optional<String> email =
+customer.map(Customer::getEmail);
+
+System.out.println(email.get());
+
+Output
+
+akhila@gmail.com
+Interview Answer
+
+map() transforms the object inside the Optional into another value.
+
+8. filter()
+
+Suppose only Gmail users are allowed.
+
+customer.filter(c ->
+        c.getEmail().endsWith("@gmail.com"))
+        .ifPresent(System.out::println);
+
+If email is Gmail
+
+Output
+
+Customer object
+
+If not Gmail
+
+Nothing is printed.
+
+9. of()
+Optional<String> name =
+Optional.of("Akhila");
+
+Never do
+
+Optional.of(null);
+
+Throws
+
+NullPointerException
+10. ofNullable()
+String email = null;
+
+Optional<String> mail =
+Optional.ofNullable(email);
+
+Output
+
+Optional.empty
+
+No exception.
+
+Complete Real-Time Example
+Optional<Customer> customer =
+repository.findById(101L);
+
+//1
+System.out.println(customer.isPresent());
+
+//2
+customer.ifPresent(c ->
+System.out.println(c.getName()));
+
+//3
+Customer c1 =
+customer.orElse(
+new Customer(0L,"Guest","guest@gmail.com"));
+
+//4
+Customer c2 =
+customer.orElseGet(()->
+new Customer(0L,"Generated User","generated@gmail.com"));
+
+//5
+Customer c3 =
+customer.orElseThrow(()->
+new RuntimeException("Customer Not Found"));
+
+//6
+Optional<String> email =
+customer.map(Customer::getEmail);
+
+//7
+customer.filter(c->
+c.getEmail().endsWith("@gmail.com"))
+.ifPresent(System.out::println);
+How It Works (Flow)
+Repository
+      │
+      ▼
+Optional<Customer>
+      │
+      ├── isPresent() → true/false
+      │
+      ├── ifPresent() → Execute lambda
+      │
+      ├── get() → Return object
+      │
+      ├── orElse() → Default object
+      │
+      ├── orElseGet() → Lazily create object
+      │
+      ├── orElseThrow() → Throw exception
+      │
+      ├── map() → Convert Customer → Email
+      │
+      └── filter() → Apply condition
+Easy Trick to Remember
+Method	Purpose
+of()	Create Optional (null not allowed)
+ofNullable()	Create Optional (null allowed)
+isPresent()	Check if value exists
+ifPresent()	Execute code if value exists
+get()	Get the value (avoid if possible)
+orElse()	Return default value
+orElseGet()	Lazily create default value
+orElseThrow()	Throw exception if empty
+map()	Transform the value
+filter()	Apply a condition
+💡 Interview Tip (Very Important)
+
+If an interviewer asks:
+
+"Have you used Optional in your project?"
+
+You can confidently say:
+
+"Yes. In our Spring Boot application, Spring Data JPA repository methods like findById() return Optional<Customer>.
+In the service layer, we usually use orElseThrow() to throw a custom CustomerNotFoundException if the customer is not found.
+Sometimes we use map() when we only need a specific field from the entity, and ifPresent() when an operation should execute only
+if the value exists."
+

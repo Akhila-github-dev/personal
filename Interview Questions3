@@ -129,4 +129,56 @@ Tight coupling = class creates its dependency itself.
 DI = dependency is provided from outside.
 
 3. When is a Singleton Spring Bean garbage collected?
-A singleton Spring bean is generally eligible for garbage collection when the Spring ApplicationContext is destroyed and there are no other references to that bean
+A singleton Spring bean is generally eligible for garbage collection when the Spring ApplicationContext is destroyed
+and there are no other references to that bean.
+
+1.Self intro
+2.Project Architecture
+3.Team members count
+4.how string is immutable.
+5.Encapsulation in you project
+6.Spring MVC vs Spring boot
+7.Have you used multithreading concepts in your project where ?
+8.Volatile keyword
+9.How do you test Exceptions in your project and some private methods?
+10.Coding questions
+11.git commands in daily basis
+12.Method overloading vs overriding
+13.How do you remove duplicates in the list 
+14.if you want to maintain insertion order what you will be using
+15.Suppose one of the fields is a status code string like 'TXN#12345-00-SUCCESS'. Can you extract the transaction ID and status from this string?"
+16.sum of transaction ID's in a list?
+
+Suppose one of the fields is a status code string like 'TXN#12345-00-SUCCESS'. Can you extract the transaction ID and status from this string?"
+
+
+String str = TXN#12345-00-SUCCESS
+
+Str[] srarry = str.split("-").toarray();
+
+System.out.println(srarray[0].toString());
+
+String input = "TXN#12345-00-SUCCESS";
+
+        String transactionId = input.split("#")[1].split("-")[0];
+        String status = input.split("#")[1].split("-")[2];
+
+        System.out.println("Transaction ID: " + transactionId);
+        System.out.println("Status: " + status);
+
+String input = "TXN#12345-00-SUCCESS";
+        Pattern pattern = Pattern.compile("TXN#(\\d+)-\\d{2}-(\\w+)");
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.matches()) {
+            String transactionId = matcher.group(1);
+            String status = matcher.group(2);
+            System.out.println("Transaction ID: " + transactionId);
+            System.out.println("Status: " + status);
+        } else {
+            System.out.println("Invalid transaction format.");
+
+TXN# — Matches the fixed prefix.
+(\\d+) — Captures the transaction ID (one or more digits).
+-\\d{2}- — Matches the status code (2 digits, ignored).
+(\\w+) — Captures the status (alphanumeric text like SUCCESS, PENDING, etc.).

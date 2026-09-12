@@ -222,3 +222,129 @@ Bootstrap Context - It is a special context that is used to bootstap the applica
 to configure the environment that will help the Application Context to start the application.
 It is typically used to load the properties from the external configuration sources such as Consul server.
 
+=====================================
+API GATEWAY:-
+In microservices, each service has its own endpoint. But if every client (mobile, web, etc.) calls each service directly, 
+it creates tight coupling and complexity on the client side.
+An API Gateway solves this by acting as a single entry point. It routes requests to the right service, aggregates responses if needed, 
+and manages cross-cutting concerns like security, rate limiting, and load balancing.
+An API Gateway is a single entry point for all client requests to a microservices system.
+It acts as a reverse proxy, routing requests to the correct microservice, handling cross-cutting concerns like:
+Authentication & Authorization (JWT/OAuth2)
+Rate Limiting
+Load Balancing
+Caching
+Logging & Monitoring
+Request/Response Transformation
+📌 Instead of clients calling multiple microservices directly, they talk only to the API Gateway, which then routes to the
+appropriate backend services.
+
+✅ Q2: What are the responsibilities of an API Gateway?
+Responsibility	Example
+Routing	/api/users/** → User Service
+Authentication/Authorization	Validate JWT token before forwarding
+Rate Limiting/Throttling	Limit to 100 requests/minute per user
+Load Balancing	Distribute requests across instances
+Caching	Cache frequent GET calls (e.g., catalog)
+Aggregation	Combine data from multiple services
+Logging/Monitoring	Track request/response times
+
+✅ Q3: How does API Gateway work with microservices?
+The client sends all requests to the API Gateway. The gateway uses routing rules to forward requests to the appropriate microservice.
+For example:
+/users/** routes to User Service
+/orders/** routes to Order Service
+/payments/** routes to Payment Service
+It also handles JWT token validation and blocks unauthorized requests before they reach the microservices.
+
+✅ Q4: Which API Gateway have you used in your project?
+If using Spring Cloud Gateway:
+We used Spring Cloud Gateway because it supports reactive programming, works well with Spring Boot microservices, and supports
+dynamic routing and filters out of the box.
+
+✅ Q5: How does API Gateway handle authentication?
+
+API Gateway validates JWT tokens for each incoming request. If the token is valid, it forwards the request to the microservice;
+otherwise, it returns a 401 Unauthorized response.
+
+This means individual services don’t need to handle authentication logic.
+
+✅ Q6: What are the pros and cons of using API Gateway?
+👍 Advantages	👎 Disadvantages
+Centralized security	Single point of failure
+Simplifies client logic	Adds slight latency
+Supports cross-cutting concerns	Can become a bottleneck
+Load balancing and caching	Needs careful scaling
+
+✅ Q7: What happens if API Gateway fails?
+It can become a single point of failure. To avoid this, we deploy multiple instances of API Gateway behind a load balancer
+(e.g., AWS ALB or NGINX).
+
+If API Gateway fails, all client requests to microservices fail because it is the single entry point. To prevent this,
+we deploy multiple API Gateway instances behind a load balancer (like NGINX or AWS ALB).
+We also enable horizontal scaling with Kubernetes, so that if a pod fails, a new one is automatically provisioned.
+Health checks on the API Gateway ensure unhealthy instances are removed from the load balancer pool.
+In production, we can use cloud-managed API Gateways like AWS API Gateway to get built-in high availability and fault tolerance.
+
+We also considered API Gateway caching for GET requests, so even if a downstream service or Gateway instance is down briefly, frequently 
+accessed data can still be served.”
+✅ And mention API Gateway resiliency patterns like:
+Rate Limiting (to prevent overload)
+Retries & Backoff
+Timeouts
+===========================================================================================
+Cloud Config Server:
+In our microservices project, we used Spring Cloud Config Server to centralize configuration. Each service had its own yml file 
+in a Git repo. The Config Server pulled those configs, and clients fetched them at runtime. For dynamic updates, we used Spring 
+Cloud Bus with RabbitMQ to auto-refresh configs across services without restarting them.
+Spring Cloud Config is a configuration management tool that provides a central place to manage external properties (application.yml/properties) for all microservices in a system.
+Instead of each microservice storing its config file locally, Spring Cloud Config Server pulls config from a central source like a Git repo or file system and serves it to the clients (microservices).
+🧠 Why use it?
+Centralized configuration
+Dynamic refresh of configuration without restarting services
+Separation of code and configuration
+Environment-specific configs (dev, test, prod)
+Supports Git, SVN, Vault, file system as config sources
+🔁 How It Works (Architecture)
+Config Server reads config files from Git or file system.
+Microservices (Config Clients) fetch their configuration from Config Server on startup.
+If used with Spring Cloud Bus, configuration changes can be auto-refreshed across services.
+==============================================================================================
+a Circuit Breaker prevents cascading failures when one service is down or slow.
+✅ It “wraps” calls to remote services:
+If the service responds normally → calls pass through.
+If the service fails repeatedly → the circuit “opens” and stops further calls for some time.
+It’s similar to an electrical circuit breaker: it “breaks” the circuit to protect the system.
+
+🧠 Why Do We Need It?
+Microservices often depend on each other.
+If Service A calls Service B and B is down, A keeps retrying → leads to thread exhaustion, slowness, or system crash.
+Circuit breaker solves this by failing fast.
+
+⚡ Example Scenario
+Call State	  Behavior
+Service B       healthy	Calls from Service A work as normal
+Service B       fails	Circuit breaker tracks failures
+Threshold           reached	Circuit opens, calls are blocked temporarily
+Wait                 period ends	Circuit tests a request (half-open state)
+Recovery	              If successful, circuit closes again
+
+🏗 Circuit Breaker States
+State	      Meaning
+Closed	    Normal operation; all requests pass through.
+Open	       Service is considered down; calls are blocked.
+Half-Open	    Allows limited requests to test recovery.
+
+In our microservices system, we used Resilience4j for circuit breaking. If a downstream service (like Inventory) failed beyond
+a threshold, the circuit opened and requests were short-circuited for 10 seconds to prevent overloading. We provided fallback responses 
+for a better user experience and allowed limited trial calls in a half-open state to check recovery.
+
+💡 Difference Between Circuit Breaker and Retry
+Feature    	Circuit Breaker	    Retry
+Fail fast	            ✅ Yes	  ❌ No
+Protect system      	✅ Yes	  ❌ No
+Repeat calls	        ❌ Blocks calls	✅ Retries N times
+
+✅ Bonus: Combine Circuit Breaker + Retry + Rate Limiter
+Resilience4j allows you to chain them together for maximum resiliency.
+

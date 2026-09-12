@@ -182,3 +182,96 @@ TXN# — Matches the fixed prefix.
 (\\d+) — Captures the transaction ID (one or more digits).
 -\\d{2}- — Matches the status code (2 digits, ignored).
 (\\w+) — Captures the status (alphanumeric text like SUCCESS, PENDING, etc.).
+=================================================================================
+version control systems
+1.git
+2. bitbucket
+3. ado
+4. IBM clear case
+
+GitHub -------> cloud
+git -------->local 
+
+git clone url ---------->cloud to local  
+git config --global user.name="akhila"
+git config -- global user.email="akhila@bofa.com"
+
+untracked files ---------->-git doesn't know
+
+git add .
+
+tracked file 
+1. unstaged area ->code change local lo save avuthundhi
+2. staged area ->git consider only staged area 
+
+unstaged to staged
+git add . ------->-all file
+git add filename
+
+git init 
+
+git status
+
+git commit -m "story2323 -application sever issue"
+
+git push          --------->upload remote
+
+
+git pull remote branch name
+
+got push remote branch name
+
+git checkout -b "branch2" 
+
+git merge "branch name"
+
+git diff
+
+What is Git and why is it used?
+
+Answer: Git is a distributed version control system used to track changes in source code during software development. It allows multiple developers to work on a project simultaneously, manage changes, and maintain a history of all modifications.
+What is a repository in Git?
+
+Answer: A repository in Git is a storage location where all the files and their history are stored. It contains a directory named .git, which holds all the metadata and object database for the project.
+How do you create a new repository in Git?
+
+Answer: You can create a new repository using the command: git init
+This initializes a new Git repository in the current directory.
+
+What is the difference between git clone and git fork?
+Answer: git clone creates a copy of an existing repository, including all its history and branches, on your local machine.
+git fork, on the other hand, is typically used on platforms like GitHub to create a personal copy of someone else's repository, which you can then clone to your local machine.
+
+How do you stage and commit changes in Git?
+Answer: To stage changes, use:git add <file-name>
+
+To commit the staged changes, use:git commit -m "Your commit message"
+
+What is a branch in Git and how do you create one?
+
+Answer: A branch in Git is a separate line of development. You can create a new branch using:git branch <branch-name>
+
+
+To switch to the new branch, use:git checkout <branch-name>
+
+
+Explain the difference between git merge and git rebase.
+
+Answer: git merge combines changes from one branch into another, creating a new commit. git rebase moves or combines a sequence of commits to a new base commit, which can result in a cleaner project history.
+What is a merge conflict and how do you resolve it?
+
+Answer: A merge conflict occurs when changes from different branches conflict with each other. To resolve it, you need to manually edit the conflicted files to choose which changes to keep, then stage and commit the resolved files.
+What is Git stash and how is it used?
+
+Answer: Git stash temporarily saves your changes and reverts your working directory to a clean state. You can stash changes using:
+
+To apply stashed changes later, use:git stash apply
+
+How do you revert a commit in Git?
+
+Answer: You can revert a commit using:git revert <commit-hash>
+
+
+This creates a new commit that undoes the changes from the specified commit.
+
+git log filename - to know who commited last 

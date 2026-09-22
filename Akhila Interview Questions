@@ -1782,3 +1782,257 @@ transactional annotation attributes and propagation types
 hibernate  one to many mapping 
 vertical scaling and horizontal scaling
 jtm token authentication and authorization
+
+cotiviti 2 round
+
+length of lognest substring without repeating characters
+Dockers, jenkins, cicd pipline
+HashMap treeification / Red-Black Tree lookup.
+
+List<Integer> list= Arrays.asList(1,2,3,4);
+		
+		list.add(5);
+		System.out.println(list);
+
+unsupported operation we will get
+
+| Propagation     | Simple meaning                                                                    |
+| --------------- | --------------------------------------------------------------------------------- |
+| `REQUIRED`      | Join existing transaction; if none exists, create a new one                       |
+| `REQUIRES_NEW`  | Always create a **new transaction**; suspend existing transaction                 |
+| `SUPPORTS`      | Use existing transaction if available; otherwise execute without transaction      |
+| `NOT_SUPPORTED` | Always execute **without transaction**; suspend existing transaction              |
+| `MANDATORY`     | Must have an existing transaction; otherwise exception                            |
+| `NEVER`         | Must NOT have an existing transaction; otherwise exception                        |
+| `NESTED`        | Execute inside a **nested transaction/savepoint** within the existing transaction |
+
+
+@Transactional(propagation = Propagation.REQUIRED)
+public void placeOrder() {
+    processPayment();
+}
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public void processPayment() {
+}
+
+Assume placeOrder() starts Transaction A.
+
+When it calls processPayment():
+
+placeOrder()
+   ↓
+Transaction A
+   ↓
+processPayment()
+   ↓
+Transaction B (new)
+
+Transaction A is suspended while B executes.
+
+If processPayment() succeeds → B commits.
+
+Then control returns to placeOrder() → A continues.
+
+3. Scenario: Payment fails
+
+Suppose:
+
+@Transactional
+public void placeOrder() {
+    saveOrder();
+    processPayment();   // REQUIRES_NEW
+    updateOrder();
+}
+
+If processPayment() throws a runtime exception:
+
+Transaction B → ROLLBACK
+Transaction A → can also rollback if exception propagates
+
+So REQUIRES_NEW does NOT automatically mean the outer transaction won't roll back.
+
+The important point is:
+
+The inner transaction rolls back independently, but if its exception propagates to the outer method, the outer transaction can also roll back.
+
+4. What if processPayment() succeeds but placeOrder() fails?
+
+This is the classic interview question.
+
+Transaction A → placeOrder
+      ↓
+Transaction B → processPayment → COMMIT
+      ↓
+Transaction A → FAIL → ROLLBACK
+
+Payment transaction B remains committed.
+
+The order transaction A rolls back.
+
+So you can end up with:
+
+Payment successful, but order rolled back.
+
+That's one reason REQUIRES_NEW must be used carefully.
+
+5. What if you remove REQUIRES_NEW?
+
+Then it becomes REQUIRED by default:
+
+@Transactional
+public void placeOrder() {
+    saveOrder();
+    processPayment();
+}
+
+@Transactional   // REQUIRED by default
+public void processPayment() {
+}
+
+Now both use the same transaction:
+
+Transaction A
+ ├── placeOrder
+ └── processPayment
+
+If processPayment() fails and the exception causes the transaction to roll back:
+
+placeOrder → ROLLBACK
+processPayment → ROLLBACK
+
+Everything is rolled back together.
+
+6. NESTED scenario
+@Transactional
+public void placeOrder() {
+    saveOrder();
+    processPayment(); // NESTED
+    updateOrder();
+}
+
+Conceptually:
+
+Transaction A
+   |
+   |--- saveOrder
+   |
+   |--- SAVEPOINT
+   |       |
+   |       └── processPayment
+   |
+   |--- updateOrder
+
+If the nested operation fails and the situation is handled appropriately, Spring can roll back to the savepoint without necessarily rolling back 
+everything in the outer transaction.
+
+Think:
+
+REQUIRED → same transaction
+
+REQUIRES_NEW → completely new transaction
+
+NESTED → same transaction + savepoint
+
+Interview questions you should prepare
+
+Q1. What is Propagation.REQUIRED?
+
+“It joins an existing transaction. If no transaction exists, it creates a new one.”
+
+Q2. What is REQUIRES_NEW?
+
+“It always creates a new transaction and suspends the existing transaction.”
+
+Q3. Difference between REQUIRED and REQUIRES_NEW?
+
+“REQUIRED uses the existing transaction, whereas REQUIRES_NEW suspends it and creates a separate transaction.”
+
+Q4. What happens if the outer transaction rolls back but the inner method uses REQUIRES_NEW?
+
+“The inner transaction can remain committed because it is independent of the outer transaction.”
+
+Q5. What happens if the inner REQUIRES_NEW method throws an exception?
+
+“The inner transaction rolls back. If the exception propagates to the outer method, the outer transaction can also roll back.”
+
+Q6. What is NESTED?
+
+“It uses a nested transaction with a savepoint. The nested operation can roll back to that savepoint while the outer transaction can continue, 
+depending on how the exception is handled.”
+
+Q7. What is the default propagation?
+
+REQUIRED
+
+⭐ Remember this for your interview
+REQUIRED      → Same transaction
+REQUIRES_NEW  → New transaction
+NESTED        → Same transaction + savepoint
+
+One important caveat: NESTED behavior depends on the transaction manager/database support for savepoints, and @Transactional behavior
+also depends on how the method is invoked (Spring proxy/self-invocation matters).
+
+
+=====================================================================
+@Transactional
+public void placeOrder() {
+    saveOrder();
+
+    paymentService.processPayment();  // REQUIRES_NEW
+
+    updateOrder(); // Something goes wrong here
+}
+// PaymentService
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public void processPayment() {
+    makePayment();
+}
+
+Both methods are in different classes, so the Spring proxy works normally.
+
+What happens?
+
+When placeOrder() starts:
+
+Transaction A starts
+      ↓
+saveOrder()
+      ↓
+processPayment()
+      ↓
+Transaction A is suspended
+      ↓
+Transaction B starts (REQUIRES_NEW)
+      ↓
+makePayment()
+      ↓
+Transaction B COMMIT
+      ↓
+Transaction A resumes
+      ↓
+updateOrder()
+      ↓
+ERROR ❌
+      ↓
+Transaction A ROLLBACK
+Final result
+
+Payment → COMMITTED ✅
+Order changes → ROLLED BACK ❌
+
+Because processPayment() has REQUIRES_NEW, its transaction is independent of the transaction of placeOrder().
+
+So if the interviewer asks:
+
+“After processPayment() succeeds, something fails in placeOrder(). Will payment also roll back?”
+
+Answer:
+
+“No. Since processPayment() uses REQUIRES_NEW, it runs in a separate transaction. Its transaction commits independently. 
+If placeOrder() fails afterward, only the outer transaction rolls back; the payment transaction remains committed.”
+
+
+=============================
+api was very slow what u will you do in that scenior
+how do you know that specific query was slow we use one command for it 
+

@@ -2033,20 +2033,187 @@ If placeOrder() fails afterward, only the outer transaction rolls back; the paym
 
 
 =============================
-api was very slow what u will you do in that scenior
-how do you know that specific query was slow we use one command for it 
-Cqrs
-Terminal operations, internal operation 
-Terminal should be there
-Primary qualifier
-Primary use cheyali only one bean unnappudu 
-Versioning
-Git commands
-Git conflict vasthe em commands use chesthavu 
-Deployment em use chesavu 
-Git logs akkada check chesavu
-Venerabilities 
-Y u have down graded, y not upgraded
-Swagger 
-Swagger annotation configuration
+API was very slow. What will you do?
 
+First, I’ll check whether the issue is in the application, database, or external service. I’ll check the API logs and response time, identify which operation is taking more time, and check the database queries. If a specific query is slow, I’ll analyze its execution plan and optimize it. I’ll also check external API calls and application performance.
+
+2. How do you know which specific query was slow?
+
+We can check the application logs if SQL logging is enabled. In the database, we can use EXPLAIN or EXPLAIN ANALYZE to analyze the query execution plan and identify expensive queries.
+
+Command:
+
+EXPLAIN ANALYZE SELECT * FROM employee WHERE department_id = 10;
+
+If they ask specifically about MySQL:
+
+We can also check the slow query log to identify queries taking longer than the configured threshold.
+
+3. What is CQRS?
+
+CQRS stands for Command Query Responsibility Segregation. It separates operations that modify data from operations that only read data. Commands are used for create, update and delete operations, while queries are used for reading data.
+
+Simple example:
+
+Command → Create/Update Order
+Query   → Get Order Details
+4. What is a terminal operation in Java Streams?
+
+A terminal operation is the operation that triggers the execution of the stream pipeline. Without a terminal operation, intermediate operations like filter() and map() are not executed.
+
+Examples:
+
+collect()
+forEach()
+count()
+reduce()
+findFirst()
+
+Example:
+
+list.stream()
+    .filter(x -> x > 10)
+    .map(x -> x * 2)
+    .collect(Collectors.toList());
+
+Here, collect() is the terminal operation.
+
+5. What is @Primary? When do you use it?
+
+@Primary is used when we have multiple beans of the same type and Spring needs to decide which bean should be injected by default.
+
+Example:
+
+@Bean
+@Primary
+PaymentService paymentService() {
+    return new PaymentService();
+}
+
+Important correction: @Primary is not used when there is only one bean.
+It is useful when multiple candidate beans exist.
+
+6. What is API versioning?
+
+API versioning allows us to maintain different versions of an API without breaking existing clients.
+
+Example:
+
+/api/v1/customers
+/api/v2/customers
+
+If we make a breaking change in the response or request structure, we can introduce v2 while keeping v1 for existing consumers.
+
+7. What Git commands do you commonly use?
+git clone
+git status
+git add
+git commit
+git pull
+git push
+git branch
+git checkout
+git switch
+git merge
+git log
+git diff
+git stash
+
+A natural interview answer:
+
+I commonly use git status, git pull, git add, git commit, git push, branch commands, merge, stash and git log.
+
+8. Git conflict comes. What commands do you use?
+
+First, I pull or merge the latest changes. If there is a conflict, I check the conflicted files using git status. I resolve the conflicts manually, then add the resolved files, commit and push.
+
+git status
+git pull
+# resolve conflicts
+git add .
+git commit -m "Resolve merge conflicts"
+git push
+
+If merge is not supposed to continue:
+
+git merge --abort
+9. What did you use for deployment?
+
+If your project used CI/CD:
+
+We used a CI/CD pipeline for deployment. After the code was merged, the pipeline would build the application, run tests, create the deployable artifact or Docker image, and deploy it to the required environment.
+
+If they ask what tools:
+
+Git → GitHub/GitLab
+Build → Maven
+Container → Docker
+CI/CD → Jenkins
+Deployment → Kubernetes/AWS
+
+Only mention the tools you actually know/used in your project.
+
+10. Where did you check Git logs?
+
+I use git log to check the commit history and understand what changes were made.
+
+git log
+
+Useful versions:
+
+git log --oneline
+git log --author="name"
+git log --since="2 weeks ago"
+
+For a particular file:
+
+git log -- path/to/file
+11. What vulnerabilities do you check in a Spring Boot application?
+
+I check vulnerabilities in dependencies, authentication and authorization, SQL injection, sensitive information exposure, insecure API endpoints, and outdated libraries. We can use tools like OWASP Dependency-Check, SonarQube, or the security scanning tools available in the CI/CD pipeline.
+
+12. Why did you downgrade a dependency instead of upgrading it?
+
+This is a scenario question. Don't say "downgrade is better."
+
+We first check the reason for the vulnerability or compatibility issue. If the latest version is not compatible with our existing application or causes another issue, we may temporarily use a stable compatible version. But we should verify the security impact and plan to move to a supported version rather than keeping an old vulnerable version.
+
+13. What is Swagger?
+
+Swagger is used to document and test REST APIs. It provides an interactive UI where developers can see the available APIs, request parameters, responses and execute API calls.
+
+In Spring Boot, commonly:
+
+Springdoc OpenAPI
+Swagger UI
+14. What Swagger annotations have you used?
+
+Common annotations:
+
+@Operation
+@ApiResponse
+@Parameter
+@Tag
+@Schema
+
+Example:
+
+@Operation(
+    summary = "Get customer by ID",
+    description = "Returns customer details"
+)
+@ApiResponse(
+    responseCode = "200",
+    description = "Customer found"
+)
+@GetMapping("/{id}")
+public Customer getCustomer(@PathVariable Long id) {
+    return service.getCustomer(id);
+}
+
+For controller-level grouping:
+
+@Tag(name = "Customer APIs")
+@RestController
+public class CustomerController {
+}

@@ -2035,4 +2035,18 @@ If placeOrder() fails afterward, only the outer transaction rolls back; the paym
 =============================
 api was very slow what u will you do in that scenior
 how do you know that specific query was slow we use one command for it 
+Cqrs
+Terminal operations, internal operation 
+Terminal should be there
+Primary qualifier
+Primary use cheyali only one bean unnappudu 
+Versioning
+Git commands
+Git conflict vasthe em commands use chesthavu 
+Deployment em use chesavu 
+Git logs akkada check chesavu
+Venerabilities 
+Y u have down graded, y not upgraded
+Swagger 
+Swagger annotation configuration
 

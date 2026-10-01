@@ -1,0 +1,5 @@
+Interview question: What does findById return when a record is absent, and how should a REST API translate that into an HTTP response?
+findById() returns an Optional. If the record doesn't exist, it returns Optional.empty(), not null.
+findById() returns an Optional.empty() when the record is not found. It does not return null.
+
+In the service layer, I handle it using orElseThrow() and throw a custom ProductNotFoundException. Then, using @ExceptionHandler in GlobalExceptionHandler, I convert that exception into an HTTP 404 Not Found response
